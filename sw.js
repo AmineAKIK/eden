@@ -1,11 +1,11 @@
 /* Service worker : copie locale de tout le site, pour jouer hors ligne.
-   6e15e3a00a38 et ["./", "apps/tables/icons/tables-180.png", "apps/tables/icons/tables-192.png", "apps/tables/icons/tables-512.png", "apps/tables/icons/tables-64.png", "apps/tables/icons/tables-mask-192.png", "apps/tables/icons/tables-mask-512.png", "apps/tables/", "icons/eden-180.png", "icons/eden-192.png", "icons/eden-512.png", "icons/eden-64.png", "icons/eden-mask-192.png", "icons/eden-mask-512.png", "index.html", "manifest.webmanifest"] sont remplis par scripts/build.py.
+   1491153be5ba et ["./", "apps/tables/icons/tables-180.png", "apps/tables/icons/tables-192.png", "apps/tables/icons/tables-512.png", "apps/tables/icons/tables-64.png", "apps/tables/icons/tables-mask-192.png", "apps/tables/icons/tables-mask-512.png", "apps/tables/", "icons/eden-180.png", "icons/eden-192.png", "icons/eden-512.png", "icons/eden-64.png", "icons/eden-mask-192.png", "icons/eden-mask-512.png", "index.html", "manifest.webmanifest"] sont remplis par scripts/build.py.
 
-   Mises à jour : la version (6e15e3a00a38) est l'empreinte du site construit. Dès qu'une
+   Mises à jour : la version (1491153be5ba) est l'empreinte du site construit. Dès qu'une
    publication change un fichier, ce script change, le navigateur installe la nouvelle
    version, puis la page se recharge (voir src/shared/update.js).
    La progression (localStorage) n'est jamais touchée : seul le cache des fichiers change. */
-const CACHE='eden-6e15e3a00a38';
+const CACHE='eden-1491153be5ba';
 const FILES=["./", "apps/tables/icons/tables-180.png", "apps/tables/icons/tables-192.png", "apps/tables/icons/tables-512.png", "apps/tables/icons/tables-64.png", "apps/tables/icons/tables-mask-192.png", "apps/tables/icons/tables-mask-512.png", "apps/tables/", "icons/eden-180.png", "icons/eden-192.png", "icons/eden-512.png", "icons/eden-64.png", "icons/eden-mask-192.png", "icons/eden-mask-512.png", "index.html", "manifest.webmanifest"];
 
 /* installation : on télécharge tout en contournant le cache HTTP du navigateur,
