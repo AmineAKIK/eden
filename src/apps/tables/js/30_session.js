@@ -112,7 +112,7 @@ async function session(me0){
       const t0=Date.now();
       const v=await new Promise(res=>{K.go=v=>{if(K.lock)return;K.lock=true;res(Number(v));};});
       chk(me);
-      if(v===ans){ansEl.classList.add('ok');chime();mood('wow');slow=(Date.now()-t0)>9000;break;}
+      if(v===ans){ansEl.classList.add('ok');chime();mood('wow');slow=(Date.now()-t0)>opt().slow*1000;break;}
       tries++;ansEl.classList.add('shake');soft();setTimeout(()=>ansEl.classList.remove('shake'),450);
       if(placing||tries>=2){revealed=true;break;}
       /* 1re erreur : on comprend avec les gestes, puis on réessaie */

@@ -28,6 +28,13 @@ function chainOf(a,b){
   return {kind:'skip',x:a,y:b,lines:[seq.join(', ')],say:`${nw(a)} fois ${nw(b)} : ${seq.map(nw).join(', ')}.`};
 }
 const V={
+ g_intro:'Voici ta grille, Eden. Chaque case est un calcul : le nombre de la ligne, fois le nombre de la colonne.',
+ g_colors:'Les cases vert foncé, tu les sais. Vert clair, tu les as presque. Jaunes, tu les apprends. Grises, tu les découvriras bientôt.',
+ g_same:'Trois fois sept et sept fois trois, c’est le même calcul. Les deux cases s’allument ensemble.',
+ g_tap:'Touche une case pour l’entendre.',
+ g_learn:'Celui-là, tu es en train de l’apprendre.',
+ g_almost:'Celui-là, tu l’as presque.',
+ g_new:'Celui-là, on le découvrira bientôt.',
  hello:'Salut Eden ! Moi, c’est Hector, le petit guerrier. On s’entraîne avec les tables ?',
  place_end:'Merci Eden ! Maintenant, Hector sait par où commencer. Le prochain entraînement commence quand tu appuies sur Jouer.',
  place_intro:'Avant de commencer, Hector veut savoir ce que tu connais déjà. Écris le résultat de chaque calcul. Pas de souci si tu hésites.',

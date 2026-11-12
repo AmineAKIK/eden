@@ -223,3 +223,35 @@ html.turn .turnmsg{display:flex;position:fixed;inset:0;z-index:100;background:#2
 .end .row2{flex-wrap:wrap;align-items:center}.pill{white-space:nowrap}
 .end .sub,.home .sub{text-wrap:balance}
 :where(html.short) .end{gap:10px}:where(html.short) .end .hero{width:92px}:where(html.short) .end h2{font-size:34px}
+
+/* ---------- 1.2 : grille expliquée, roue des parents, réglages ---------- */
+.gc.l3,.gc.l4{background:#0E9E69;color:#fff}
+.grid button.gc{padding:0;border:0;cursor:pointer;transition:transform .15s ease,box-shadow .15s ease}
+.grid .gc.h{transition:background .2s,color .2s;border-radius:8px}
+.grid .gc.h.on{background:var(--bic);color:#fff}
+.grid .gc.sel,.grid .gc.tw{box-shadow:0 0 0 3px var(--bic);transform:scale(1.08);z-index:1;position:relative}
+.grid .gc.tw{box-shadow:0 0 0 3px var(--bic),0 0 0 6px #fff}
+@media (prefers-reduced-motion:reduce){.grid button.gc{transition:none}.grid .gc.sel,.grid .gc.tw{transform:none}}
+.gridscr .work{gap:12px}
+.gridscr .grid{width:min(94vw,420px)}
+:where(html.short) .gridscr .grid{width:min(88vw,330px);gap:2px}
+:where(html.tiny) .gridscr .grid{width:min(80vw,280px)}
+.legend span{display:inline-flex;align-items:center;gap:5px}
+.legend i.gc{width:16px;height:16px;aspect-ratio:auto;border-radius:4px;margin:0;display:inline-block}
+/* roue : un anneau se remplit pendant l'appui long */
+.gear{opacity:.55}
+.gear::after{content:'';position:absolute;inset:0;border-radius:50%;background:conic-gradient(var(--bic) var(--hp),transparent 0);
+  -webkit-mask:radial-gradient(farthest-side,transparent calc(100% - 4px),#000 calc(100% - 3.5px));mask:radial-gradient(farthest-side,transparent calc(100% - 4px),#000 calc(100% - 3.5px))}
+.gear.holding{opacity:1}.gear.holding::after{animation:hp 1.5s linear forwards}
+@property --hp{syntax:'<percentage>';inherits:false;initial-value:0%}
+@keyframes hp{to{--hp:100%}}
+.geartip{position:absolute;right:12px;bottom:calc(60px + env(safe-area-inset-bottom));max-width:250px;background:var(--ink);color:#fff;font-size:15px;line-height:1.3;padding:10px 14px;border-radius:14px 14px 4px 14px;animation:fin .2s ease both;z-index:5}
+/* réglages */
+.pseg{margin:10px 0 14px}
+.pseglab{font-weight:600;margin-bottom:6px}
+.psegb{display:flex;background:#EEF1FB;border-radius:14px;padding:4px;gap:4px}
+.psb{flex:1;padding:11px 6px;border-radius:11px;font-weight:600;font-size:15px;color:var(--ink2)}
+.psb.on{background:#fff;color:var(--bic);box-shadow:0 1px 0 var(--line),0 0 0 2px var(--bic) inset}
+.plegend{list-style:none;padding:0!important;margin:8px 0}
+.plegend li{display:flex;gap:10px;align-items:flex-start;margin:8px 0}
+.plegend i.gc{flex:none;width:22px;height:22px;aspect-ratio:auto;border-radius:6px;margin-top:1px}

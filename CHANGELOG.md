@@ -2,6 +2,18 @@
 
 Format : [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/). Chaque appli a son propre numéro de version (dans son `app.json`).
 
+## 2026-11-12 (e)
+
+### Ajouté
+- Les tables 1.2.0 : Hector explique « Ma grille » à la première visite (une case = la ligne fois la colonne, les couleurs, 3 × 7 = 7 × 3). Chaque case se touche : la ligne et la colonne s'allument, la case jumelle aussi, et Hector dit le calcul. Le bouton haut-parleur réexplique.
+- Réglages dans l'espace parents : durée d'une séance (courte, normale, longue), temps pour une réponse sûre (9 ou 15 secondes), voix, petits sons, revoir l'histoire du début.
+- Espace parents : explication de la grille et de ses couleurs.
+- « Trois fois », « quatre fois »… dits d'un seul tenant.
+
+### Corrigé
+- La roue de l'accueil ne semblait rien faire : un appui court explique maintenant le geste, et un anneau se remplit pendant l'appui long.
+- Grille : « je le sais » a une seule couleur (deux verts différents prêtaient à confusion).
+
 ## 2026-11-12 (d)
 
 ### Ajouté

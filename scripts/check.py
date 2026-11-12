@@ -73,7 +73,7 @@ def check_voice_tables():
     # clés littérales passées à say(...) / say0(...) / sy(S, ...)
     used = set(re.findall(r"\bsay0?\('([a-z0-9_]+)'", code)) | set(re.findall(r"\bsy\(S,'([a-z0-9_]+)'\)", code))
     used |= set(re.findall(r"\b(?:intro|cut|ten1|afterCut|afterFill|count):'([a-z0-9_]+)'", code))
-    used |= set(re.findall(r"'(ok[1-6]|tech_[a-z0-9_]+|diag_[a-z]+)'", code))
+    used |= set(re.findall(r"'(ok[1-6]|tech_[a-z0-9_]+|diag_[a-z]+|g_[a-z]+)'", code))
     used = {k for k in used if not k.endswith('_')}  # préfixes de clés construites (q_, c_…)
     out = node(phrases + "\nconst AUDIO=" + json.dumps({c: 1 for c in clips}) + ";\n" + seq.group(0) + """
 const used=%s;const res={undef:[],nosound:[]};

@@ -36,6 +36,10 @@ const ab=id=>id.split('-').map(Number);
 const known=id=>ST.f[id];
 const mastered=()=>FACTS.filter(id=>known(id)&&ST.f[id].box>=3).length;
 
+/* réglages des parents (ajoutés en 1.2 : valeurs par défaut si absents) */
+const OPT0={len:'normal',slow:9,sfx:true};
+const opt=()=>Object.assign({},OPT0,ST.opt||{});
+const setOpt=(k,v)=>{ST.opt=Object.assign(opt(),{[k]:v});save();};
 function buildSession(){
   const t=today();
   if(!ST.placed){
@@ -46,17 +50,18 @@ function buildSession(){
   const easy=FACTS.filter(id=>!known(id)&&cls(id)!=='bb').slice(0,3);
   const hard=(HARD[ST.hardIdx]||[]).filter(id=>!known(id));
   const newL=easy.length?easy:hard;
-  const total=12;
+  const total={court:8,normal:12,long:16}[opt().len]||12;
   const warm=due.slice(0,3),rest=due.slice(3);
   const seq=warm.map(f=>({mode:'review',f}));
   newL.forEach(f=>seq.push({mode:'new',f}));
   const room=total-seq.length-newL.length;
   rest.slice(0,Math.max(0,room)).forEach(f=>seq.push({mode:'review',f}));
   newL.forEach((f,i)=>{const at=seq.findIndex(s=>s.f===f&&s.mode==='new');seq.splice(Math.min(seq.length,at+3+i),0,{mode:'again',f});});
-  if(seq.length<8){
+  const least=Math.min(8,total-2);
+  if(seq.length<least){
     const have=new Set(seq.map(s=>s.f));
     const more=FACTS.filter(id=>known(id)&&!have.has(id)).sort((x,y)=>ST.f[x].box-ST.f[y].box||Math.random()-.5);
-    more.slice(0,8-seq.length).forEach(f=>seq.push({mode:'review',f}));
+    more.slice(0,least-seq.length).forEach(f=>seq.push({mode:'review',f}));
   }
   return seq;
 }
@@ -139,7 +144,7 @@ async function say(k,{sub=true}={}){
   if(my===sayN&&HERO)HERO.classList.remove('talk');
 }
 /* sons doux (jamais de buzzer) */
-function tone(f,t0,d,type='sine',g=.15,f2){const ac=getAC();if(!ac||window.__FAST)return;try{const o=ac.createOscillator(),n=ac.createGain(),t=ac.currentTime+t0;o.type=type;o.frequency.setValueAtTime(f,t);if(f2)o.frequency.exponentialRampToValueAtTime(f2,t+d);n.gain.setValueAtTime(.0001,t);n.gain.linearRampToValueAtTime(g,t+.02);n.gain.exponentialRampToValueAtTime(.0001,t+d);o.connect(n);n.connect(ac.destination);o.start(t);o.stop(t+d+.05);}catch(e){}}
+function tone(f,t0,d,type='sine',g=.15,f2){const ac=getAC();if(!ac||window.__FAST||!opt().sfx)return;try{const o=ac.createOscillator(),n=ac.createGain(),t=ac.currentTime+t0;o.type=type;o.frequency.setValueAtTime(f,t);if(f2)o.frequency.exponentialRampToValueAtTime(f2,t+d);n.gain.setValueAtTime(.0001,t);n.gain.linearRampToValueAtTime(g,t+.02);n.gain.exponentialRampToValueAtTime(.0001,t+d);o.connect(n);n.connect(ac.destination);o.start(t);o.stop(t+d+.05);}catch(e){}}
 const tick=()=>tone(700,0,.08,'triangle',.1);
 const chime=()=>[660,880,1175].forEach((f,i)=>tone(f,i*.08,.35,'sine',.14));
 const soft=()=>tone(300,0,.25,'sine',.1,240);
@@ -194,21 +199,51 @@ function showHome(){
     window.EdenInstall&&EdenInstall.need?h('button',{class:'instl',onclick:()=>EdenInstall.show()},'Mettre Hector sur l’écran d’accueil'):null,gear);
   mount(sc);
 }
-function hold(btn){let t=null;btn.addEventListener('pointerdown',()=>{clearTimeout(t);t=setTimeout(openPanel,1300);});['pointerup','pointerleave','pointercancel'].forEach(e=>btn.addEventListener(e,()=>clearTimeout(t)));}
+/* espace parents : réservé aux adultes, sans code à retenir. Un appui court affiche le geste,
+   un appui de 1,5 s remplit l'anneau autour de la roue et ouvre l'espace. */
+function hold(btn){
+  let t=null,tip=null,opened=0;const stop=()=>{clearTimeout(t);btn.classList.remove('holding');};
+  btn.addEventListener('contextmenu',e=>e.preventDefault());
+  btn.addEventListener('pointerdown',e=>{e.preventDefault();stop();btn.classList.add('holding');t=setTimeout(()=>{stop();if(tip)tip.remove();opened=Date.now();openPanel();},1500);});
+  ['pointerup','pointerleave','pointercancel'].forEach(ev=>btn.addEventListener(ev,stop));
+  btn.addEventListener('click',()=>{if(Date.now()-opened<800||(tip&&tip.isConnected))return;tip=h('div',{class:'geartip',role:'status'},'Espace parents : gardez le doigt appuyé sur la roue.');
+    btn.parentElement.append(tip);setTimeout(()=>tip&&tip.remove(),3200);});
+}
 
 /* ---------- grille (table de Pythagore de ce que l'enfant sait) ---------- */
+/* ---------- ma grille : Hector l'explique, chaque case se touche ---------- */
+const lvl=id=>{const e=known(id);return !e?0:e.box>=3?3:e.box>=2?2:1;};
 function showGrid(){
-  const g=h('div',{class:'grid'});
-  g.append(h('div',{class:'gc h'},'×'));for(let b=2;b<=9;b++)g.append(h('div',{class:'gc h'},b));
-  for(let a=2;a<=9;a++){g.append(h('div',{class:'gc h'},a));
-    for(let b=2;b<=9;b++){const id=Math.min(a,b)+'-'+Math.max(a,b),e=known(id);const L=!e?0:(e.box>=4?4:e.box>=3?3:e.box>=2?2:1);
-      g.append(h('div',{class:'gc'+(L?' l'+L:'')},L>=3?String(a*b):''));}}
+  const g=h('div',{class:'grid',role:'grid','aria-label':'Ma grille de multiplication'}),cells={},heads={r:{},c:{}};
+  g.append(h('div',{class:'gc h x'},'×'));for(let b=2;b<=9;b++)g.append(heads.c[b]=h('div',{class:'gc h'},b));
+  const hero=makeHero(),bub=h('div',{class:'bubble'}),me=RUN+1;
+  let busy=0;
+  const pick=async(a,b)=>{
+    tick();const id=Math.min(a,b)+'-'+Math.max(a,b),L=lvl(id),my=++busy;
+    g.querySelectorAll('.on,.tw,.sel').forEach(e=>e.classList.remove('on','tw','sel'));
+    heads.r[a].classList.add('on');heads.c[b].classList.add('on');cells[a+'-'+b].classList.add('sel');if(a!==b)cells[b+'-'+a].classList.add('tw');
+    if(L===3){mood('happy');setBub(`${a} × ${b} = ${a*b}`);await say(`r_${a}_${b}`,{sub:false});return;}
+    setBub(`${a} × ${b}`);mood('think');
+    await say(`q_${a}_${b}`,{sub:false});if(my!==busy||me!==RUN)return;
+    await say(L===2?'g_almost':L===1?'g_learn':'g_new');
+  };
+  for(let a=2;a<=9;a++){g.append(heads.r[a]=h('div',{class:'gc h'},a));
+    for(let b=2;b<=9;b++){const L=lvl(Math.min(a,b)+'-'+Math.max(a,b));
+      g.append(cells[a+'-'+b]=h('button',{class:'gc'+(L?' l'+L:''),'aria-label':`${a} fois ${b}`,onclick:()=>pick(a,b)},L===3?String(a*b):''));}}
+  const explain=async()=>{const my=++busy;try{for(const k of ['g_intro','g_colors','g_same','g_tap']){
+      if(k==='g_same'){g.querySelectorAll('.on,.tw,.sel').forEach(e=>e.classList.remove('on','tw','sel'));cells['3-7'].classList.add('sel');cells['7-3'].classList.add('tw');}
+      await say(k);if(my!==busy||me!==RUN)return;}
+    g.querySelectorAll('.tw,.sel').forEach(e=>e.classList.remove('tw','sel'));ST.gridSeen=1;save();}catch(e){}};
   const back=h('button',{class:'ib','aria-label':'Maison',onclick:()=>{tick();showHome();}},icon('home'));
-  const sc=h('div',{class:'screen'},h('div',{class:'bar'},back,h('div',{class:'fr',style:'font-size:28px;color:var(--bic);flex:1;text-align:center'},'Ma grille'),h('div',{style:'width:52px'})),
-    h('div',{class:'work',style:'gap:14px'},g,
-      h('div',{class:'legend'},h('span',{},h('i',{style:'background:#E3E7F6'}),'à découvrir'),h('span',{},h('i',{style:'background:#FFE9A8'}),'j’apprends'),h('span',{},h('i',{style:'background:#C9F0DB'}),'presque'),h('span',{},h('i',{style:'background:#0E9E69'}),'je le sais')),
-      h('div',{class:'sub',style:'text-align:center'},`${mastered()} calculs sus sur 36. 3 × 7 et 7 × 3 comptent pour un seul.`)));
-  mount(sc);
+  const ear=h('button',{class:'ib','aria-label':'Réexpliquer la grille',onclick:()=>{tick();explain();}},icon('ear'));
+  const sw=(c,t)=>h('span',{},h('i',{class:'gc '+c}),t);
+  const sc=h('div',{class:'screen gridscr'},h('div',{class:'bar'},back,h('div',{class:'fr',style:'font-size:28px;color:var(--bic);flex:1;text-align:center'},'Ma grille'),ear),
+    h('div',{class:'work'},g,
+      h('div',{class:'legend'},sw('l3','je le sais'),sw('l2','presque'),sw('l1','j’apprends'),sw('','à découvrir')),
+      h('div',{class:'sub',style:'text-align:center'},h('b',{},String(mastered())),' calculs sus sur 36')),
+    h('div',{class:'talkrow'},hero,bub));
+  mount(sc);HERO=hero;BUB=bub;
+  if(!ST.gridSeen)explain();else{setBub(V.g_tap);}
 }
 
 /* ---------- clavier ---------- */
@@ -269,6 +304,14 @@ function importCode(txt){
   try{const s=JSON.parse(decodeURIComponent(escape(atob(m[1]))));
     if(!s||typeof s!=='object'||typeof s.f!=='object'||!Array.isArray(s.log))return null;return s;}catch(e){return null;}
 }
+/* choix à boutons (réglages) */
+function seg(label,opts,cur,on,note){
+  const box=h('div',{class:'pseg'},h('div',{class:'pseglab'},label),
+    h('div',{class:'psegb',role:'radiogroup','aria-label':label},opts.map(([v,t])=>h('button',{class:'psb'+(v===cur?' on':''),role:'radio','aria-checked':String(v===cur),
+      onclick:()=>{tick();on(v);const pn=box.closest('.panel');if(pn&&pn._draw)pn._draw();}},t))),
+    note?h('p',{class:'pnote'},note):null);
+  return box;
+}
 const plural=(n,w)=>`${n} ${w}${n>1?'s':''}`;
 function openPanel(){
   const p=h('div',{class:'panel',role:'dialog','aria-label':'Espace parents'});
@@ -323,14 +366,28 @@ function openPanel(){
           h('li',{},'Après une erreur, Hector ne donne pas la réponse : il dit ce que l’erreur montre (une rangée de trop, un + à la place du ×), refait la technique avec Eden, puis Eden réessaie.'),
           h('li',{},'Un calcul réussi revient de plus en plus tard ; un calcul raté revient dans la séance puis le lendemain. Une réponse juste mais lente (plus de 9 secondes) n’est pas encore comptée comme sue.'))),
       card('Réglages',
+        seg('Durée d’une séance',[['court','Courte'],['normal','Normale'],['long','Longue']],opt().len,v=>setOpt('len',v),
+          {court:'Environ 8 calculs, 3 à 4 minutes.',normal:'Environ 12 calculs, 5 à 7 minutes.',long:'Environ 16 calculs, 8 à 10 minutes.'}[opt().len]),
+        seg('Temps pour une réponse sûre',[[9,'9 secondes'],[15,'15 secondes']],opt().slow,v=>setOpt('slow',v),
+          opt().slow>9?'Pour un enfant qui écrit encore lentement. Un calcul juste mais plus lent reste « presque su ».':'Un calcul juste mais trouvé en plus de 9 secondes reste « presque su » : il reviendra.'),
+        seg('Voix d’Hector',[[true,'Activée'],[false,'Coupée']],!!ST.voice,v=>{ST.voice=v;save();},ST.voice?null:'Les phrases restent écrites dans la bulle.'),
+        seg('Petits sons',[[true,'Activés'],[false,'Coupés']],opt().sfx,v=>setOpt('sfx',v),null),
         h('div',{class:'prow'},
-          h('button',{class:'btn',onclick:()=>{ST.voice=!ST.voice;save();draw();}},ST.voice?'Voix d’Hector : activée':'Voix d’Hector : coupée'),
           window.EdenInstall&&EdenInstall.need?h('button',{class:'btn',onclick:()=>EdenInstall.show()},'Mettre sur l’écran d’accueil'):null,
-          h('button',{class:'btn danger',onclick:e=>{if(e.target.dataset.sure){ST={voice:ST.voice,intro:false,chap:0,t:{cut:0,ten:0},pre:{},placed:false,hardIdx:0,f:{},log:[]};save();p.remove();showHome();return;}
+          h('button',{class:'btn',onclick:()=>{ST.intro=false;ST.chap=0;save();p.remove();showHome();}},'Revoir l’histoire du début'),
+          h('button',{class:'btn danger',onclick:e=>{if(e.target.dataset.sure){ST={voice:ST.voice,opt:ST.opt,intro:false,chap:0,t:{cut:0,ten:0},pre:{},placed:false,hardIdx:0,f:{},log:[]};save();p.remove();showHome();return;}
             e.target.dataset.sure='1';e.target.textContent='Toucher encore pour tout effacer';}},'Recommencer à zéro'))),
+      card('La grille',
+        h('p',{},'Chaque case est un calcul (ligne × colonne). 3 × 7 et 7 × 3 sont le même calcul : les deux cases ont toujours la même couleur.'),
+        h('ul',{class:'plegend'},
+          h('li',{},h('i',{class:'gc'}),h('span',{},h('b',{},'Gris : '),'pas encore vu.')),
+          h('li',{},h('i',{class:'gc l1'}),h('span',{},h('b',{},'Jaune : '),'en apprentissage. Calcul nouveau, ou raté à la dernière séance.')),
+          h('li',{},h('i',{class:'gc l2'}),h('span',{},h('b',{},'Vert clair : '),'presque su. Réussi, mais pas encore assez de fois, ou trop lentement.')),
+          h('li',{},h('i',{class:'gc l3'}),h('span',{},h('b',{},'Vert foncé : '),'su. Réussi du premier coup et vite, sur plusieurs séances espacées.'))),
+        h('p',{class:'pnote'},'Un calcul su revient de temps en temps pour vérifier qu’il est bien retenu. S’il est raté, il repasse en jaune.')),
       h('p',{class:'pver'},'Hector · version '+APP_VERSION)].filter(Boolean));
   };
-  draw();ROOT.append(p);
+  p._draw=draw;draw();ROOT.append(p);
 }
 function boot(){
   const old=document.getElementById('nojs');if(old)old.remove();
