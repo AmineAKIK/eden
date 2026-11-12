@@ -139,12 +139,13 @@ button{font:inherit;color:inherit;border:0;background:none;padding:0;cursor:poin
 .rw{display:flex;gap:4px;padding:2px 6px;border-radius:12px;transition:background .2s}
 .rw.gh .dt{background:transparent;border:2px dashed #8A93C4}
 .rw.low .dt.y{background:#E5503A}
-.rw.tapme{background:#FFF1B8;cursor:pointer}
+.rw{transition:background .45s ease,opacity .35s ease}
+.rw.tapme{background:#FFF1B8;cursor:pointer;border-radius:10px}
 .cutl{height:30px;width:100%;display:flex;align-items:center;transition:margin .4s}
 .cutl i{display:block;width:100%;border-top:4px dashed var(--red)}
 .cutl.done{margin:8px 0}.cutl.done i{border-top-color:transparent}
-.tapme{animation:tapme 1s ease-in-out infinite}
-@keyframes tapme{50%{transform:scale(1.05);box-shadow:0 0 0 7px #FFE14D99}}
+.tapme{outline:5px solid rgba(255,214,61,0);outline-offset:5px;animation:tapme 1.8s ease-in-out infinite}
+@keyframes tapme{0%,100%{outline-color:rgba(255,214,61,0)}50%{outline-color:rgba(255,214,61,.75)}}
 .pk.chest{background:#FFF3D6;border:3px solid #C98A12;border-radius:16px}
 .pk.chest.on{background:#FFE29A;border-color:#8A5A00}
 .eq.sm{font-size:clamp(30px,9vw,42px);gap:8px}
@@ -183,12 +184,24 @@ button{font:inherit;color:inherit;border:0;background:none;padding:0;cursor:poin
 
 .catbtn{position:absolute;left:14px;top:calc(12px + env(safe-area-inset-top))}
 .home{position:relative}
+
+/* pas de rupture visuelle : la taille des pièces change en douceur, la ligne de coupe se referme en douceur */
+@property --d{syntax:'<length>';inherits:true;initial-value:20px}
+.ar{transition:--d .35s ease}
+.ar .cutl{transition:height .35s ease,margin .35s ease}
+.ar .cutl i{transition:border-top-color .35s ease}
+.dt.nx{animation:none}
+@media (prefers-reduced-motion:reduce){.ar,.ar .cutl,.rw{transition:none}}
+
+/* la bulle d'Hector garde la même hauteur quel que soit le texte : la scène ne bouge pas quand il parle */
+.talkrow .bubble{height:146px;overflow:hidden;align-items:center}
+@media (max-height:700px){.talkrow .bubble{height:104px}}
 </style>
 </head>
 <body>
 <div id="nojs" style="padding:28px 20px;font:20px/1.4 system-ui,sans-serif;text-align:center">Chargement…</div>
 <script>
-const APP_VERSION='1.0.3';
+const APP_VERSION='1.0.4';
 const HERO_SVG='<svg viewBox="0 0 100 112"><defs><radialGradient id="hg" cx=".35" cy=".25" r=".95"><stop offset="0" stop-color="#FFE9A6"/><stop offset="1" stop-color="#D79A2B"/></radialGradient><radialGradient id="sg" cx=".35" cy=".3" r=".9"><stop offset="0" stop-color="#FFF0A8"/><stop offset="1" stop-color="#F2B01E"/></radialGradient></defs><g class="antenna"><path d="M26 34C28 6 72 6 74 34" stroke="#141A38" stroke-width="16" fill="none" stroke-linecap="round"/><path d="M26 34C28 6 72 6 74 34" stroke="#D52F3E" stroke-width="9" fill="none" stroke-linecap="round"/></g><ellipse cx="36" cy="106" rx="11" ry="5" fill="#141A38"/><ellipse cx="64" cy="106" rx="11" ry="5" fill="#141A38"/><path d="M30 84h40l7 20H23z" fill="#D52F3E" stroke="#141A38" stroke-width="4" stroke-linejoin="round"/><path d="M33 90h34" stroke="#FFD84D" stroke-width="4" stroke-linecap="round"/><circle cx="50" cy="58" r="31" fill="#F6C08F" stroke="#141A38" stroke-width="4"/><path d="M17 56C14 20 86 20 83 56L73 52C66 40 34 40 27 52z" fill="url(#hg)" stroke="#141A38" stroke-width="4" stroke-linejoin="round"/><path d="M50 24v14" stroke="#141A38" stroke-width="3" stroke-linecap="round"/><ellipse cx="38" cy="60" rx="9" ry="11" fill="#fff" stroke="#141A38" stroke-width="3"/><ellipse cx="62" cy="60" rx="9" ry="11" fill="#fff" stroke="#141A38" stroke-width="3"/><circle class="pup" cx="40" cy="62" r="5.2" fill="#141A38"/><circle class="pup" cx="64" cy="62" r="5.2" fill="#141A38"/><circle cx="27" cy="77" r="5" fill="#FF8FC0" opacity=".7"/><circle cx="73" cy="77" r="5" fill="#FF8FC0" opacity=".7"/><path class="mo mo-happy" d="M38 79Q50 94 62 79z" fill="#fff" stroke="#141A38" stroke-width="3" stroke-linejoin="round"/><path class="mo mo-think" d="M40 86L60 83" stroke="#141A38" stroke-width="4" fill="none" stroke-linecap="round"/><ellipse class="mo mo-wow" cx="50" cy="86" rx="6" ry="8" fill="#141A38"/><path class="mo mo-oops" d="M39 90Q50 80 61 90" stroke="#141A38" stroke-width="4" fill="none" stroke-linecap="round"/><g><circle cx="22" cy="92" r="15" fill="url(#sg)" stroke="#141A38" stroke-width="4"/><circle cx="22" cy="92" r="9" fill="none" stroke="#C98A12" stroke-width="3"/><path d="M22 85l2.2 5 5.3.5-4 3.6 1.2 5.2-4.7-2.8-4.7 2.8 1.2-5.2-4-3.6 5.3-.5z" fill="#D52F3E"/></g></svg>';
 /* ===== mots, nombres, phrases de Hector (partagés par l'appli et le générateur de voix) ===== */
 const U16=['zéro','un','deux','trois','quatre','cinq','six','sept','huit','neuf','dix','onze','douze','treize','quatorze','quinze','seize'];
@@ -403,7 +416,11 @@ async function playKey(k){
   return new Promise(res=>{let d=false;const fin=()=>{if(!d){d=true;if(curRes===fin)curRes=null;res();}};curRes=fin;
     try{const u=new SpeechSynthesisUtterance(V[k]);u.lang='fr-FR';u.rate=.92;u.onend=fin;u.onerror=fin;speechSynthesis.speak(u);}catch(e){fin();}setTimeout(fin,12000);});
 }
-function setBub(t){if(BUB)BUB.textContent=t||'';}
+/* bulle de hauteur fixe : le texte rétrécit s'il est long, pour que rien ne bouge à l'écran */
+function setBub(t){if(!BUB)return;BUB.textContent=t||'';BUB.style.fontSize='';
+  if(!BUB.isConnected||!BUB.closest('.talkrow'))return;
+  let f=parseFloat(getComputedStyle(BUB).fontSize);
+  for(let i=0;i<10&&BUB.scrollHeight>BUB.clientHeight+1&&f>12;i++){f-=1;BUB.style.fontSize=f+'px';}}
 function mood(m){if(!HERO)return;HERO.classList.remove('m-happy','m-think','m-wow','m-oops');HERO.classList.add('m-'+m);if(m==='wow'||m==='happy'){HERO.classList.remove('hop');void HERO.offsetWidth;HERO.classList.add('hop');}}
 let RUN=0;class Ab extends Error{}
 async function say(k,{sub=true}={}){
@@ -608,14 +625,24 @@ function mkBlocks(cols,parts){
 }
 const rowCounts=(rows,cols)=>rows.forEach((r,i)=>{let l=r.querySelector('.rl');if(!l){l=h('span',{class:'rl'});r.append(l);}l.textContent=String((i+1)*cols);});
 const focusBlk=(A,i)=>A.blocks.forEach((b,k)=>{const on=i===-1||k===i;b.rowsEl.classList.toggle('dim',!on);b.lab.classList.toggle('dim',!on);});
-const hideK=S=>{S.K.el.style.display='none';KEYS=null;};
+/* changement de mise en page sans saut : chaque bloc glisse de son ancienne place à la nouvelle */
+function smooth(box,change){
+  if(!box||!box.isConnected){change();return;}
+  const kids=[...box.children],before=kids.map(k=>k.getBoundingClientRect().top);
+  change();fit(box);
+  kids.forEach((k,i)=>{if(!k.isConnected)return;const dy=before[i]-k.getBoundingClientRect().top;if(Math.abs(dy)<1)return;
+    k.style.transition='none';k.style.transform=`translateY(${dy}px)`;k.getBoundingClientRect();
+    k.style.transition='transform .35s ease';k.style.transform='';setTimeout(()=>{k.style.transition='';},420);});
+}
+const hideK=S=>{if(S.K.el.style.display!=='none')smooth(S.work,()=>{S.K.el.style.display='none';});KEYS=null;};
 
 /* petite question au clavier, liée au dessin.
    1re erreur : une aide visuelle ciblée ; 2e erreur : la réponse s'affiche, avec le dessin. */
 async function askNum(S,host,expr,expected,qkey,o={}){
   const {K}=S;const ans=h('span',{class:'ans'},'?');
   const eq=h('div',{class:'eq sm'},h('span',{},expr+' ='),ans);host.append(eq);
-  K.el.style.display='';K.val='';K.lock=false;KEYS=K;K.upd=()=>{ans.textContent=K.val||'?';};
+  if(K.el.style.display==='none')smooth(S.work,()=>{K.el.style.display='';});
+  K.val='';K.lock=false;KEYS=K;K.upd=()=>{ans.textContent=K.val||'?';};
   fit(S.work);
   setBub('Combien font '+expr+' ?');mood('think');
   if(qkey)say(qkey,{sub:false});
