@@ -92,6 +92,7 @@ button{font:inherit;color:inherit;border:0;background:none;padding:0;cursor:poin
 /* fin / grille */
 .end{align-items:center;justify-content:center;gap:14px;padding:20px;text-align:center}
 .end .hero{width:130px}
+.end .bubble{flex:none;align-self:stretch;justify-content:center}
 .end h2{margin:0;font-family:'Fredoka',sans-serif;font-weight:400;font-size:40px;color:var(--bic)}
 .chips{display:flex;gap:8px;flex-wrap:wrap;justify-content:center}
 .chip{font-family:'Fredoka',sans-serif;font-size:22px;padding:6px 14px;border-radius:999px;background:#fff;border:2px solid var(--line)}
@@ -187,7 +188,7 @@ button{font:inherit;color:inherit;border:0;background:none;padding:0;cursor:poin
 <body>
 <div id="nojs" style="padding:28px 20px;font:20px/1.4 system-ui,sans-serif;text-align:center">Chargement…</div>
 <script>
-const APP_VERSION='1.0.0';
+const APP_VERSION='1.0.1';
 const HERO_SVG='<svg viewBox="0 0 100 112"><defs><radialGradient id="hg" cx=".35" cy=".25" r=".95"><stop offset="0" stop-color="#FFE9A6"/><stop offset="1" stop-color="#D79A2B"/></radialGradient><radialGradient id="sg" cx=".35" cy=".3" r=".9"><stop offset="0" stop-color="#FFF0A8"/><stop offset="1" stop-color="#F2B01E"/></radialGradient></defs><g class="antenna"><path d="M26 34C28 6 72 6 74 34" stroke="#141A38" stroke-width="16" fill="none" stroke-linecap="round"/><path d="M26 34C28 6 72 6 74 34" stroke="#D52F3E" stroke-width="9" fill="none" stroke-linecap="round"/></g><ellipse cx="36" cy="106" rx="11" ry="5" fill="#141A38"/><ellipse cx="64" cy="106" rx="11" ry="5" fill="#141A38"/><path d="M30 84h40l7 20H23z" fill="#D52F3E" stroke="#141A38" stroke-width="4" stroke-linejoin="round"/><path d="M33 90h34" stroke="#FFD84D" stroke-width="4" stroke-linecap="round"/><circle cx="50" cy="58" r="31" fill="#F6C08F" stroke="#141A38" stroke-width="4"/><path d="M17 56C14 20 86 20 83 56L73 52C66 40 34 40 27 52z" fill="url(#hg)" stroke="#141A38" stroke-width="4" stroke-linejoin="round"/><path d="M50 24v14" stroke="#141A38" stroke-width="3" stroke-linecap="round"/><ellipse cx="38" cy="60" rx="9" ry="11" fill="#fff" stroke="#141A38" stroke-width="3"/><ellipse cx="62" cy="60" rx="9" ry="11" fill="#fff" stroke="#141A38" stroke-width="3"/><circle class="pup" cx="40" cy="62" r="5.2" fill="#141A38"/><circle class="pup" cx="64" cy="62" r="5.2" fill="#141A38"/><circle cx="27" cy="77" r="5" fill="#FF8FC0" opacity=".7"/><circle cx="73" cy="77" r="5" fill="#FF8FC0" opacity=".7"/><path class="mo mo-happy" d="M38 79Q50 94 62 79z" fill="#fff" stroke="#141A38" stroke-width="3" stroke-linejoin="round"/><path class="mo mo-think" d="M40 86L60 83" stroke="#141A38" stroke-width="4" fill="none" stroke-linecap="round"/><ellipse class="mo mo-wow" cx="50" cy="86" rx="6" ry="8" fill="#141A38"/><path class="mo mo-oops" d="M39 90Q50 80 61 90" stroke="#141A38" stroke-width="4" fill="none" stroke-linecap="round"/><g><circle cx="22" cy="92" r="15" fill="url(#sg)" stroke="#141A38" stroke-width="4"/><circle cx="22" cy="92" r="9" fill="none" stroke="#C98A12" stroke-width="3"/><path d="M22 85l2.2 5 5.3.5-4 3.6 1.2 5.2-4.7-2.8-4.7 2.8 1.2-5.2-4-3.6 5.3-.5z" fill="#D52F3E"/></g></svg>';
 /* ===== mots, nombres, phrases de Hector (partagés par l'appli et le générateur de voix) ===== */
 const U16=['zéro','un','deux','trois','quatre','cinq','six','sept','huit','neuf','dix','onze','douze','treize','quatorze','quinze','seize'];
@@ -530,7 +531,7 @@ function openPanel(){
   const p=h('div',{class:'panel'});
   const draw=()=>{
     const weak=FACTS.filter(id=>known(id)&&ST.f[id].box<=1&&ST.f[id].ko>0).map(id=>ab(id).join(' × '));
-    p.replaceChildren(
+    p.replaceChildren(...[
       h('h2',{},'Espace parents'),
       h('p',{},`${mastered()} calculs sus sur 36 (a × b et b × a comptent pour un seul). ${ST.log.length} séance${ST.log.length>1?'s':''} jouée${ST.log.length>1?'s':''}.`),
       weak.length?h('p',{},'À retravailler : '+weak.join(', ')+'.'):null,
@@ -546,7 +547,7 @@ function openPanel(){
       h('button',{class:'btn',onclick:()=>{ST.voice=!ST.voice;save();draw();}},ST.voice?'Voix de Hector : activée':'Voix de Hector : coupée'),
       h('button',{class:'btn',onclick:()=>{if(confirm('Tout effacer et recommencer ?')){ST={voice:ST.voice,intro:false,chap:0,t:{cut:0,ten:0},pre:{},placed:false,hardIdx:0,f:{},log:[]};save();p.remove();showHome();}}},'Recommencer à zéro'),
       h('p',{style:'opacity:.6;font-size:14px'},'Version '+APP_VERSION+' · voix : '+VMODE),
-      h('div',{style:'margin-top:16px'},h('button',{class:'btn',style:'background:#2640C9;color:#fff',onclick:()=>p.remove()},'Fermer')));
+      h('div',{style:'margin-top:16px'},h('button',{class:'btn',style:'background:#2640C9;color:#fff',onclick:()=>p.remove()},'Fermer'))].filter(Boolean));
   };
   draw();ROOT.append(p);
 }
