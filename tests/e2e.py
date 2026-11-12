@@ -100,6 +100,7 @@ async def play_tables(p, base, name, w, h):
         if sig not in seen:
             seen.add(sig)
             shots += 1
+            await pg.wait_for_timeout(450)  # laisser finir les glissements avant de mesurer
             await pg.screenshot(path=OUT / f"tables-{name}-{shots:03d}.png")
             bad = await ev("""(()=>{const w=document.querySelector('.screen>.work');if(!w)return 0;const r=w.getBoundingClientRect();
               let n=0;w.querySelectorAll('.eq,.ar,.lab,.lines,.big').forEach(e=>{if(e.offsetParent===null)return;const q=e.getBoundingClientRect();

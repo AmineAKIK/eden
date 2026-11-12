@@ -168,13 +168,14 @@ button{font:inherit;color:inherit;border:0;background:none;padding:0;cursor:poin
 .home{position:relative}
 
 /* pas de rupture visuelle : la taille des pièces change en douceur, la ligne de coupe se referme en douceur */
-@property --d{syntax:'<length>';inherits:true;initial-value:20px}
-.ar{transition:--d .35s ease}
 .ar .cutl{transition:height .35s ease,margin .35s ease}
 .ar .cutl i{transition:border-top-color .35s ease}
 .dt.nx{animation:none}
-@media (prefers-reduced-motion:reduce){.ar,.ar .cutl,.rw{transition:none}}
+@media (prefers-reduced-motion:reduce){.ar .cutl,.rw{transition:none}}
 
 /* la bulle d'Hector garde la même hauteur quel que soit le texte : la scène ne bouge pas quand il parle */
 .talkrow .bubble{height:146px;overflow:hidden;align-items:center}
 @media (max-height:700px){.talkrow .bubble{height:104px}}
+/* avec le clavier, la bulle est plus basse (questions courtes) : la place va au rectangle */
+.screen:has(> .keys:not([style*="display: none"])) .talkrow .bubble{height:80px}
+@media (max-height:700px){.screen:has(> .keys:not([style*="display: none"])) .talkrow .bubble{height:62px}}
