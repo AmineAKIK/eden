@@ -188,7 +188,7 @@ button{font:inherit;color:inherit;border:0;background:none;padding:0;cursor:poin
 <body>
 <div id="nojs" style="padding:28px 20px;font:20px/1.4 system-ui,sans-serif;text-align:center">Chargement…</div>
 <script>
-const APP_VERSION='1.0.2';
+const APP_VERSION='1.0.3';
 const HERO_SVG='<svg viewBox="0 0 100 112"><defs><radialGradient id="hg" cx=".35" cy=".25" r=".95"><stop offset="0" stop-color="#FFE9A6"/><stop offset="1" stop-color="#D79A2B"/></radialGradient><radialGradient id="sg" cx=".35" cy=".3" r=".9"><stop offset="0" stop-color="#FFF0A8"/><stop offset="1" stop-color="#F2B01E"/></radialGradient></defs><g class="antenna"><path d="M26 34C28 6 72 6 74 34" stroke="#141A38" stroke-width="16" fill="none" stroke-linecap="round"/><path d="M26 34C28 6 72 6 74 34" stroke="#D52F3E" stroke-width="9" fill="none" stroke-linecap="round"/></g><ellipse cx="36" cy="106" rx="11" ry="5" fill="#141A38"/><ellipse cx="64" cy="106" rx="11" ry="5" fill="#141A38"/><path d="M30 84h40l7 20H23z" fill="#D52F3E" stroke="#141A38" stroke-width="4" stroke-linejoin="round"/><path d="M33 90h34" stroke="#FFD84D" stroke-width="4" stroke-linecap="round"/><circle cx="50" cy="58" r="31" fill="#F6C08F" stroke="#141A38" stroke-width="4"/><path d="M17 56C14 20 86 20 83 56L73 52C66 40 34 40 27 52z" fill="url(#hg)" stroke="#141A38" stroke-width="4" stroke-linejoin="round"/><path d="M50 24v14" stroke="#141A38" stroke-width="3" stroke-linecap="round"/><ellipse cx="38" cy="60" rx="9" ry="11" fill="#fff" stroke="#141A38" stroke-width="3"/><ellipse cx="62" cy="60" rx="9" ry="11" fill="#fff" stroke="#141A38" stroke-width="3"/><circle class="pup" cx="40" cy="62" r="5.2" fill="#141A38"/><circle class="pup" cx="64" cy="62" r="5.2" fill="#141A38"/><circle cx="27" cy="77" r="5" fill="#FF8FC0" opacity=".7"/><circle cx="73" cy="77" r="5" fill="#FF8FC0" opacity=".7"/><path class="mo mo-happy" d="M38 79Q50 94 62 79z" fill="#fff" stroke="#141A38" stroke-width="3" stroke-linejoin="round"/><path class="mo mo-think" d="M40 86L60 83" stroke="#141A38" stroke-width="4" fill="none" stroke-linecap="round"/><ellipse class="mo mo-wow" cx="50" cy="86" rx="6" ry="8" fill="#141A38"/><path class="mo mo-oops" d="M39 90Q50 80 61 90" stroke="#141A38" stroke-width="4" fill="none" stroke-linecap="round"/><g><circle cx="22" cy="92" r="15" fill="url(#sg)" stroke="#141A38" stroke-width="4"/><circle cx="22" cy="92" r="9" fill="none" stroke="#C98A12" stroke-width="3"/><path d="M22 85l2.2 5 5.3.5-4 3.6 1.2 5.2-4.7-2.8-4.7 2.8 1.2-5.2-4-3.6 5.3-.5z" fill="#D52F3E"/></g></svg>';
 /* ===== mots, nombres, phrases de Hector (partagés par l'appli et le générateur de voix) ===== */
 const U16=['zéro','un','deux','trois','quatre','cinq','six','sept','huit','neuf','dix','onze','douze','treize','quatorze','quinze','seize'];
@@ -670,6 +670,7 @@ async function runTechnique(S,a0,b0,host,kp={}){
     const A=mkBlocks(y,[5,r]);
     const cut=h('button',{class:'cutl','aria-label':'Couper ici'},h('i'));A.el.insertBefore(cut,A.blocks[1].rowsEl);
     host.append(A.el,q);fit(S.work);
+    if(kp.intro)await sy(S,kp.intro);
     say(kp.cut||'tech_cut');await tapOn(cut,S);
     cut.classList.add('done');A.blocks[1].rows.forEach(rw=>rw.classList.add('low'));chime();fit(S.work);await sleep(500);chk2(S);
     if(kp.afterCut)await sy(S,kp.afterCut);
@@ -685,6 +686,7 @@ async function runTechnique(S,a0,b0,host,kp={}){
   }else{
     const n=ch.y,A=mkBlocks(n,[10]),gr=A.blocks[0].rows[9];gr.classList.add('gh');
     host.append(A.el,q);fit(S.work);
+    if(kp.intro)await sy(S,kp.intro);
     say(kp.ten1||'tech_ten');await tapOn(gr,S);
     gr.classList.remove('gh');gr.classList.add('low');chime();await sleep(400);chk2(S);
     if(kp.afterFill)await sy(S,kp.afterFill);
@@ -731,15 +733,13 @@ async function ch2(S){
 }
 async function ch3(S){
   S.tag.textContent='Nouvelle technique : couper';
-  await sy(S,'c3_a');
-  await runTechnique(S,6,7,S.work,{cut:'c3_b',afterCut:'c3_c'});
+  await runTechnique(S,6,7,S.work,{intro:'c3_a',cut:'c3_b',afterCut:'c3_c'});
   await sy(S,'c3_e');
   await nextBtn('Suite');chk2(S);
 }
 async function ch4(S){
   S.tag.textContent='Nouvelle technique : presque dix';
-  await sy(S,'c4_a');
-  await runTechnique(S,7,9,S.work,{ten1:'c4_b',afterFill:'c4_c'});
+  await runTechnique(S,7,9,S.work,{intro:'c4_a',ten1:'c4_b',afterFill:'c4_c'});
   await sy(S,'c4_e');
   await nextBtn('Suite');chk2(S);
 }
