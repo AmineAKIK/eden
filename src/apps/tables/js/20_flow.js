@@ -111,6 +111,7 @@ async function runTechnique(S,a0,b0,host,kp={}){
     const A=mkBlocks(y,[5,r]);
     const cut=h('button',{class:'cutl','aria-label':'Couper ici'},h('i'));A.el.insertBefore(cut,A.blocks[1].rowsEl);
     host.append(A.el,q);fit(S.work);
+    if(kp.intro)await sy(S,kp.intro);
     say(kp.cut||'tech_cut');await tapOn(cut,S);
     cut.classList.add('done');A.blocks[1].rows.forEach(rw=>rw.classList.add('low'));chime();fit(S.work);await sleep(500);chk2(S);
     if(kp.afterCut)await sy(S,kp.afterCut);
@@ -126,6 +127,7 @@ async function runTechnique(S,a0,b0,host,kp={}){
   }else{
     const n=ch.y,A=mkBlocks(n,[10]),gr=A.blocks[0].rows[9];gr.classList.add('gh');
     host.append(A.el,q);fit(S.work);
+    if(kp.intro)await sy(S,kp.intro);
     say(kp.ten1||'tech_ten');await tapOn(gr,S);
     gr.classList.remove('gh');gr.classList.add('low');chime();await sleep(400);chk2(S);
     if(kp.afterFill)await sy(S,kp.afterFill);
@@ -172,15 +174,13 @@ async function ch2(S){
 }
 async function ch3(S){
   S.tag.textContent='Nouvelle technique : couper';
-  await sy(S,'c3_a');
-  await runTechnique(S,6,7,S.work,{cut:'c3_b',afterCut:'c3_c'});
+  await runTechnique(S,6,7,S.work,{intro:'c3_a',cut:'c3_b',afterCut:'c3_c'});
   await sy(S,'c3_e');
   await nextBtn('Suite');chk2(S);
 }
 async function ch4(S){
   S.tag.textContent='Nouvelle technique : presque dix';
-  await sy(S,'c4_a');
-  await runTechnique(S,7,9,S.work,{ten1:'c4_b',afterFill:'c4_c'});
+  await runTechnique(S,7,9,S.work,{intro:'c4_a',ten1:'c4_b',afterFill:'c4_c'});
   await sy(S,'c4_e');
   await nextBtn('Suite');chk2(S);
 }

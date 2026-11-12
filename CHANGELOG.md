@@ -5,6 +5,7 @@ Format : [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/). Chaque appli 
 ## 2026-11-12 (b)
 
 ### Corrigé
+- Les tables 1.0.3 : dans les chapitres « couper » et « presque dix », le rectangle s'affiche avant qu'Hector en parle (il apparaissait après sa phrase).
 - Les tables 1.0.2 : la bulle de l'écran d'accueil d'Hector occupait tout l'écran.
 - Les tables 1.0.1 : l'espace parents affichait le mot « null » ; la bulle de l'écran de fin occupait tout l'espace libre.
 
