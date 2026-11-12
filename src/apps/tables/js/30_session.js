@@ -37,7 +37,7 @@ async function session(me0){
   const K=keypad();KEYS=K;
   const tag=h('div',{class:'tag'});
   const sc=h('div',{class:'screen'},h('div',{class:'bar'},back,prog,ear,bulb),h('div',{class:'tagrow'},tag),work,h('div',{class:'talkrow'},hero,bub),dock,K.el);
-  mount(sc);HERO=hero;BUB=bub;const me=RUN;
+  mount(sc);HERO=hero;BUB=bub;autoFit(work);const me=RUN;
   const S={me,K,work,compact:true};
   const rocket=()=>{const d=document.createElement('span');d.innerHTML='<svg class="rk" viewBox="0 0 24 32"><circle cx="12" cy="16" r="10.5" fill="#F2B01E" stroke="#141A38" stroke-width="2"/><circle cx="12" cy="16" r="6" fill="none" stroke="#C98A12" stroke-width="1.6"/><path d="M12 11l1.5 3.3 3.5.3-2.7 2.3.8 3.4-3.1-1.8-3.1 1.8.8-3.4L7 14.6l3.5-.3z" fill="#D52F3E"/></svg>';return d.firstChild;};
   const drawProg=i=>{prog.replaceChildren();seq.forEach((_,k)=>prog.append(k===i?rocket():h('i',{class:k<i?'d':''})));};
@@ -51,7 +51,7 @@ async function session(me0){
   for(let i=0;i<seq.length;i++){
     const it=seq[i];
     tag.textContent=(it.mode==='review'&&seq[0].mode==='review'&&i<3)?'Échauffement':TAGS[it.mode];
-    drawProg(i);work.replaceChildren();dock.replaceChildren();K.el.style.display='';K.val='';K.lock=false;bulb.classList.remove('glow');
+    drawProg(i);work.replaceChildren();dock.replaceChildren();K.show(true);K.val='';K.lock=false;bulb.classList.remove('glow');
     /* petit rappel d'une étape des techniques */
     if(it.mode==='pre'){
       bulb.style.visibility='hidden';
@@ -65,7 +65,7 @@ async function session(me0){
     if(it.mode==='new'){a=ch.x;b=ch.y;}else{const sw=Math.random()<.5;a=sw?b0:a0;b=sw?a0:b0;}
     const ans=a*b;
     if(it.mode==='bubble'){
-      K.el.style.display='none';K.lock=true;bulb.style.visibility='hidden';mood('happy');
+      K.show(false);K.lock=true;bulb.style.visibility='hidden';mood('happy');
       const cand=shuffle([ans+a,ans-a,ans+b,ans-b,ans+10,ans-10,ans+1,ans-1].filter(x=>x>0&&x!==ans));const chs=shuffle([ans,...[...new Set(cand)].slice(0,2)]);
       const field=h('div',{class:'bfield'});const ae=h('span',{class:'ans'},'?');
       work.append(h('div',{class:'eq'},h('span',{},`${a} × ${b} =`),ae),field);
@@ -88,7 +88,7 @@ async function session(me0){
     bulb.onclick=async()=>{if(K.lock||placing||busy)return;tick();showHint();await say('c_'+Math.min(a,b)+'_'+Math.max(a,b),{sub:false});};
     bulb.style.visibility=placing?'hidden':'visible';
     const guided=async(disp,remed)=>{
-      busy=true;bulb.style.visibility='hidden';K.el.style.display='none';eq.style.display='none';hintBox.replaceChildren();
+      busy=true;bulb.style.visibility='hidden';K.show(false);eq.style.display='none';hintBox.replaceChildren();
       await runTechnique(S,a0,b0,hintBox,remed?{kind:kindFor(),disp,cut:'tech_cut_r',ten1:'tech_ten_r',count:'tech_count_r'}:{kind:kindFor(),disp});chk(me);
       busy=false;
     };
@@ -103,7 +103,7 @@ async function session(me0){
       await say('new_try');chk(me);
     }
     for(;;){
-      K.el.style.display='';eq.style.display='';K.val='';K.lock=false;K.upd=()=>{ansEl.textContent=K.val||'?';};K.upd();KEYS=K;
+      K.show(true);eq.style.display='';K.val='';K.lock=false;K.upd=()=>{ansEl.textContent=K.val||'?';};K.upd();KEYS=K;
       bulb.style.visibility=placing?'hidden':'visible';fit(work);
       mood('think');
       if(it.mode==='again'&&tries===0)say('again',{sub:false}).then(()=>{if(RUN===me)say('q_'+a+'_'+b,{sub:false});});
@@ -128,7 +128,7 @@ async function session(me0){
       setBub('');await say(pick(['ok1','ok2','ok3','ok4','ok5','ok6']));chk(me);await sleep(350);
     }else{
       mood('think');ansEl.textContent=String(ans);ansEl.classList.add('ok');
-      if(!placing){hintBox.replaceChildren(hintView(a0,b0,false,[a,b]));K.el.style.display='none';fit(work);}
+      if(!placing){hintBox.replaceChildren(hintView(a0,b0,false,[a,b]));K.show(false);fit(work);}
       await say('oops');chk(me);
       await say(`r_${a}_${b}`,{sub:false});chk(me);
       if(!placing)await nextBtn();else await sleep(500);
@@ -150,7 +150,7 @@ async function session(me0){
     await sleep(600);
     showHome();return;
   }
-  ST.log.push({d:today(),n:asked,ok:nFirst});if(ST.log.length>60)ST.log.shift();
+  ST.log.push({d:today(),n:asked,ok:nFirst,m:mastered()});if(ST.log.length>60)ST.log.shift();
   const cur=HARD[ST.hardIdx];if(cur&&cur.every(id=>known(id)&&ST.f[id].box>=2))ST.hardIdx++;
   save();
   await endScreen(me,asked,nFirst,newly);

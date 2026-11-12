@@ -8,9 +8,9 @@ function scene(tagText=''){
   const tag=h('div',{class:'tag'},tagText);
   const back=h('button',{class:'ib','aria-label':'Maison',onclick:()=>{tick();stopVoice();KEYS=null;showHome();}},icon('home'));
   const ear=h('button',{class:'ib','aria-label':'Réécouter',onclick:()=>{if(lastKey)say(lastKey,{sub:false});}},icon('ear'));
-  const K=keypad();K.el.style.display='none';
+  const K=keypad();K.show(false);
   mount(h('div',{class:'screen'},h('div',{class:'bar'},back,tag,ear),work,h('div',{class:'talkrow'},hero,bub),dock,K.el));
-  HERO=hero;BUB=bub;
+  HERO=hero;BUB=bub;autoFit(work);
   return {work,dock,K,tag,me:RUN,hero};
 }
 const tapOn=(el,S)=>new Promise(res=>{el.classList.add('tapme');el.addEventListener('click',()=>{el.classList.remove('tapme');tick();res();},{once:true});}).then(()=>{chk2(S);fit(S.work);});
@@ -26,12 +26,20 @@ function fit(box){
     let ch=false;arrs.forEach(a=>{const d=parseFloat(a.style.getPropertyValue('--d'));if(d>7){a.style.setProperty('--d',(d-1)+'px');ch=true;}});
     if(!ch)break;
   }
+  /* si rien ne peut plus rétrécir, on aligne en haut : rien n'est coupé au-dessus */
+  box.classList.toggle('over',need()>box.clientHeight+1);
 }
-addEventListener('resize',()=>{const w=document.querySelector('.screen>.work');if(w)fit(w);});
 
+/* la zone de jeu se réajuste d'elle-même dès que sa taille ou son contenu change
+   (bulle plus haute, clavier qui apparaît, étiquette ajoutée…) : rien ne déborde jamais */
+function autoFit(box){
+  let q=0;const go=()=>{if(q)return;q=requestAnimationFrame(()=>{q=0;fit(box);});};
+  if(window.ResizeObserver)new ResizeObserver(go).observe(box);
+  new MutationObserver(go).observe(box,{childList:true,subtree:true,characterData:true});
+}
 /* rectangle de pièces découpé en blocs ; chaque bloc a son étiquette à droite */
 function mkBlocks(cols,parts){
-  const W=Math.min(innerWidth,540)-60-120;
+  const W=Math.min(innerWidth,540)-60-(parts.length>1?110:80);
   const d=Math.max(8,Math.min(28,Math.floor(W/cols)-4));
   const el=h('div',{class:'ar',role:'img','aria-label':`${parts.reduce((s,x)=>s+x,0)} rangées de ${cols} pièces`});
   el.style.setProperty('--d',d+'px');el.dataset.dmax=d;
@@ -53,14 +61,14 @@ function smooth(box,change){
     k.style.transition='none';k.style.transform=`translateY(${dy}px)`;k.getBoundingClientRect();
     k.style.transition='transform .35s ease';k.style.transform='';setTimeout(()=>{k.style.transition='';},420);});
 }
-const hideK=S=>{if(S.K.el.style.display!=='none')smooth(S.work,()=>{S.K.el.style.display='none';});KEYS=null;};
+const hideK=S=>{if(S.K.el.style.display!=='none')smooth(S.work,()=>{S.K.show(false);});KEYS=null;};
 
 /* petite question au clavier, liée au dessin.
    1re erreur : une aide visuelle ciblée ; 2e erreur : la réponse s'affiche, avec le dessin. */
 async function askNum(S,host,expr,expected,qkey,o={}){
   const {K}=S;const ans=h('span',{class:'ans'},'?');
   const eq=h('div',{class:'eq sm'},h('span',{},expr+' ='),ans);host.append(eq);
-  if(K.el.style.display==='none')smooth(S.work,()=>{K.el.style.display='';});
+  if(K.el.style.display==='none')smooth(S.work,()=>{K.show(true);});
   K.val='';K.lock=false;KEYS=K;K.upd=()=>{ans.textContent=K.val||'?';};
   fit(S.work);
   setBub('Combien font '+expr+' ?');mood('think');

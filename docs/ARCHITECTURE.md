@@ -24,8 +24,10 @@ dist/
 
 **Hors ligne et mises à jour.** `sw.js` met en cache tout le site. Son numéro de version est l'empreinte du contenu construit : chaque publication qui change un fichier change ce numéro.
 - Le navigateur vérifie s'il y a une nouvelle version à l'ouverture, au retour sur l'appli et toutes les 30 minutes (`src/shared/update.js`, inséré dans chaque page).
+- Sur iPhone, aucun site ne peut proposer « Installer » : `src/shared/install.js` (inséré dans chaque page) explique le geste (Partager, puis « Sur l'écran d'accueil »). Sur iPhone, l'icône de l'écran d'accueil a sa propre mémoire, séparée du navigateur : l'espace parents de chaque appli doit donc offrir une sauvegarde par code.
 - La nouvelle version se télécharge en contournant le cache HTTP, puis remplace l'ancienne.
 - La page se recharge d'elle-même. Dans les tables, jamais en pleine séance : le rechargement attend le retour à l'accueil.
+- Mise en page : la hauteur réellement disponible est mesurée par le code (classes `short` sous 700 px et `tiny` sous 600 px sur `<html>`), sans compter sur les unités d'écran ni sur `:has()`, qui varient selon les versions d'iOS. La zone de jeu se réajuste d'elle-même quand sa taille ou son contenu change (`autoFit`).
 - Il ne faut **jamais** effacer les données du site pour mettre à jour : cela effacerait la progression. Le test `tests/e2e.py` vérifie qu'une publication s'applique seule et que la progression reste.
 
 **La progression.** Chaque appli garde son état dans `localStorage`, sous sa propre clé déclarée dans `app.json` (`eden:tables`). Le catalogue la lit pour afficher la progression. Au démarrage, on demande au navigateur de ne pas effacer ces données (`navigator.storage.persist`).
@@ -38,5 +40,6 @@ Règles à respecter :
 ## Qualité
 
 - `scripts/check.py` : syntaxe de chaque script construit et du service worker, chaque phrase dite par le code a sa voix, manifeste et fichiers en cache présents.
-- `tests/e2e.py` : dans Chromium, un robot ouvre le catalogue, vérifie le hors-ligne, puis joue tout le parcours des tables (avec des erreurs volontaires) sur deux tailles d'écran. Il vérifie qu'il n'y a aucune erreur JavaScript et que rien ne déborde de l'écran.
+- `tests/e2e.py` : dans Chromium, un robot ouvre le catalogue, vérifie le hors-ligne, la mise à jour et la sauvegarde, puis joue tout le parcours des tables (avec des erreurs volontaires). Il vérifie qu'il n'y a aucune erreur JavaScript et que rien ne déborde de l'écran. Il lance ensuite `tests/audit.py`.
+- `tests/audit.py` : le parcours complet sur les tailles réellement visibles des téléphones (iPhone SE et iPhone 12 dans le navigateur, iPhone 12 installé, petit et grand Android), plus les écrans hors séance (accueil, aide à l'installation, espace parents, grille, techniques, téléphone tourné). Chaque écran est contrôlé : champ de réponse caché par le clavier ou la bulle, bouton recouvert ou hors de l'écran, texte de bulle coupé ou trop petit, dessin coupé ou trop petit. `--shots` garde une capture de chaque écran dans `tests/out/audit/`.
 - GitHub Actions lance les trois à chaque envoi ; la mise en ligne n'a lieu que si tout passe. `scripts/publish.py` fait la même chose en local et publie sur la branche `gh-pages`.

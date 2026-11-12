@@ -22,7 +22,8 @@ Prérequis : Python 3.9+ et Node.js 18+ (Node sert seulement aux vérifications)
 ```sh
 python3 scripts/build.py     # construit le site dans dist/
 python3 scripts/check.py     # vérifie : syntaxe, voix de chaque phrase, manifeste, cache hors ligne
-python3 tests/e2e.py         # un robot joue tout le parcours dans un vrai navigateur
+python3 tests/e2e.py         # un robot joue tout le parcours dans un vrai navigateur (lance aussi tests/audit.py)
+python3 tests/audit.py --shots  # captures de chaque écran, sur cinq tailles de téléphone
 python3 -m http.server       # puis ouvrir http://localhost:8000/dist/
 ```
 
@@ -41,7 +42,7 @@ src/
   shared/           ce qui sert à toutes les applis : polices, Hector (SVG)
   apps/tables/      Les tables : code (js/), styles, voix (voice/), icônes, app.json
 scripts/            build.py, check.py, icons.py
-tests/              e2e.py (Playwright)
+tests/              e2e.py, audit.py (Playwright)
 docs/               architecture, ajouter une appli, pédagogie et voix des tables
 ```
 

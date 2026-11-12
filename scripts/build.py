@@ -54,6 +54,11 @@ def update_js(root: str) -> str:
     return read(SRC / "shared" / "update.js").replace("@@ROOT@@", root).strip()
 
 
+def install_js() -> str:
+    """Aide à l'installation sur iPhone (bouton Partager, puis « Sur l'écran d'accueil »)."""
+    return read(SRC / "shared" / "install.js").strip()
+
+
 def hero_svg() -> str:
     return read(SRC / "shared" / "hector.svg").strip()
 
@@ -108,6 +113,9 @@ def build_app(meta, catalogue) -> Path:
 <body>
 <div id="nojs" style="padding:28px 20px;font:20px/1.4 system-ui,sans-serif;text-align:center">Chargement…</div>
 <script>
+{install_js()}
+</script>
+<script>
 {js}
 </script>
 <script>
@@ -136,6 +144,7 @@ def build_catalogue(cat, apps):
         "@@APPS@@": json.dumps(entries, ensure_ascii=False),
         "@@PROGRESS@@": read(d / "progress.js"),
         "@@UPDATE@@": update_js("./"),
+        "@@INSTALL@@": install_js(),
     }.items():
         assert k in html, f"{k} absent du gabarit du catalogue"
         html = html.replace(k, v)

@@ -49,6 +49,9 @@ h1 b{color:var(--gold);font-weight:400}
   <button class="install" id="install">Installer sur cet appareil</button>
 </main>
 <script>
+@@INSTALL@@
+</script>
+<script>
 /* applications du catalogue : générées depuis le fichier app.json de chaque appli */
 const APPS=@@APPS@@;
 /* progression affichée sous chaque appli : src/catalogue/progress.js */
@@ -61,9 +64,11 @@ const h=new Date().getHours();
 document.getElementById('say').textContent=h<12?'Bonjour Eden ! Choisis ton appli.':h<18?'Salut Eden ! Choisis ton appli.':'Bonsoir Eden ! Choisis ton appli.';
 /* la progression reste sur l'appareil : on demande au navigateur de ne pas l'effacer */
 try{navigator.storage&&navigator.storage.persist&&navigator.storage.persist();}catch(e){}
+/* installation : Android propose son propre bouton ; sur iPhone, on explique le geste */
 let ev=null;const ib=document.getElementById('install');
 addEventListener('beforeinstallprompt',e=>{e.preventDefault();ev=e;ib.classList.add('on');});
-ib.onclick=async()=>{if(!ev)return;ev.prompt();await ev.userChoice;ev=null;ib.classList.remove('on');};
+if(EdenInstall.need){ib.textContent='Mettre sur l’écran d’accueil';ib.classList.add('on');}
+ib.onclick=async()=>{if(EdenInstall.need){EdenInstall.show();return;}if(!ev)return;ev.prompt();await ev.userChoice;ev=null;ib.classList.remove('on');};
 </script>
 <script>
 @@UPDATE@@

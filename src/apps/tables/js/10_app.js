@@ -73,6 +73,8 @@ function grade(id,res,mode){
 /* ============ voix de Hector : clips intégrés à la page ============ */
 const AUDIO=/*@@AUDIO@@*/{};
 let AC=null;
+/* sur iPhone, le son passe même quand le téléphone est en mode silencieux (iOS 17 et plus) */
+try{if(navigator.audioSession)navigator.audioSession.type='playback';}catch(e){}
 const getAC=()=>{if(AC)return AC;try{const C=window.AudioContext||window.webkitAudioContext;if(C)AC=new C();}catch(e){}return AC;};
 function unlockAudio(){const ac=getAC();if(!ac)return;try{if(ac.state==='suspended')ac.resume();const s=ac.createBufferSource();s.buffer=ac.createBuffer(1,1,22050);s.connect(ac.destination);s.start(0);}catch(e){}}
 const bufs={};
@@ -86,7 +88,7 @@ function stopVoice(){vTok++;if(curSrc){try{curSrc.stop();}catch(e){}curSrc=null;
 /* une phrase = un clip, ou une suite de clips (« six » + « fois » + « sept ») */
 function seqOf(k){
   if(AUDIO[k])return [k];
-  let m;const pf=a=>a===1?['p1']:a===2?['p2']:['n'+a,'fois'];
+  let m;const pf=a=>AUDIO['p'+a]?['p'+a]:['n'+a,'fois'];  /* « trois fois » dit d'un seul tenant quand l'enregistrement existe */
   if((m=k.match(/^q_(\d+)_(\d+)$/)))return [...pf(+m[1]),'n'+m[2]];
   if((m=k.match(/^r_(\d+)_(\d+)$/)))return [...pf(+m[1]),'n'+m[2],'eg','n'+(m[1]*m[2])];
   if((m=k.match(/^c_(\d+)_(\d+)$/))){const c=chainOf(+m[1],+m[2]);return seqOf(`r_${c.x}_${c.y}`);}
@@ -97,7 +99,7 @@ function seqOf(k){
 }
 /* silence entre deux morceaux d'une phrase assemblée, mesuré de la fin de la parole au début de la suivante
    (chaque clip garde son attaque et sa chute naturelles : on ne coupe jamais la fin d'un mot) */
-const gapOf=(x,y)=>y==='fois'?0.04:(x==='fois'||x==='p1'||x==='p2')?0.07:0.13;
+const gapOf=(x,y)=>y==='fois'?0.04:(x==='fois'||/^p\d+$/.test(x))?0.07:0.13;
 /* début et fin de la parole dans un clip (le reste est le souffle autour du mot) */
 function speechOf(b){
   if(b._sp)return b._sp;const d=b.getChannelData(0),w=Math.max(1,Math.round(b.sampleRate*0.01)),r=[];
@@ -125,8 +127,10 @@ async function playKey(k){
 /* bulle de hauteur fixe : le texte rétrécit s'il est long, pour que rien ne bouge à l'écran */
 function setBub(t){if(!BUB)return;BUB.textContent=t||'';BUB.style.fontSize='';
   if(!BUB.isConnected||!BUB.closest('.talkrow'))return;
-  let f=parseFloat(getComputedStyle(BUB).fontSize);
-  for(let i=0;i<10&&BUB.scrollHeight>BUB.clientHeight+1&&f>12;i++){f-=1;BUB.style.fontSize=f+'px';}}
+  BUB.style.height='';let f=parseFloat(getComputedStyle(BUB).fontSize);
+  for(let i=0;i<10&&BUB.scrollHeight>BUB.clientHeight+1&&f>15;i++){f-=1;BUB.style.fontSize=f+'px';}
+  /* jamais en dessous de 15 px : si la phrase est longue, la bulle grandit, et le dessin se range au-dessus */
+  if(BUB.scrollHeight>BUB.clientHeight+1){BUB.style.height='auto';const w=document.querySelector('.screen>.work');if(w&&typeof fit==='function')fit(w);}}
 function mood(m){if(!HERO)return;HERO.classList.remove('m-happy','m-think','m-wow','m-oops');HERO.classList.add('m-'+m);if(m==='wow'||m==='happy'){HERO.classList.remove('hop');void HERO.offsetWidth;HERO.classList.add('hop');}}
 let RUN=0;class Ab extends Error{}
 async function say(k,{sub=true}={}){
@@ -186,7 +190,8 @@ function showHome(){
   const cat=/\/apps\//.test(location.pathname)?h('a',{class:'ib catbtn',href:'../../','aria-label':'Mes applis'},icon('grid')):null;
   const sc=h('div',{class:'screen home'},cat,hero,h('h1',{},'Les tables',h('br'),'d’Eden'),play,
     h('div',{class:'sub'},doneToday?'Bien joué Eden, séance du jour faite ✓':(m?`Prêt, Eden ? ${m} calculs sus sur 36`:'Prêt, Eden ? Avec Hector')),
-    h('div',{class:'row2'},tech,grid),gear);
+    h('div',{class:'row2'},tech,grid),
+    window.EdenInstall&&EdenInstall.need?h('button',{class:'instl',onclick:()=>EdenInstall.show()},'Mettre Hector sur l’écran d’accueil'):null,gear);
   mount(sc);
 }
 function hold(btn){let t=null;btn.addEventListener('pointerdown',()=>{clearTimeout(t);t=setTimeout(openPanel,1300);});['pointerup','pointerleave','pointercancel'].forEach(e=>btn.addEventListener(e,()=>clearTimeout(t)));}
@@ -216,7 +221,10 @@ function keypad(onGo){
   wrap.append(h('button',{class:'key del','aria-label':'Effacer',onclick:()=>{if(st.lock)return;st.val=st.val.slice(0,-1);st.upd();}},icon('del')));
   wrap.append(h('button',{class:'key','aria-label':'0',onclick:()=>press('0')},'0'));
   const go=h('button',{class:'key go','aria-label':'Valider',onclick:()=>{if(!st.lock&&st.val)st.go(st.val);}},icon('check'));wrap.append(go);
-  st.el=wrap;st.goBtn=go;st.upd=()=>{};return st;
+  st.el=wrap;st.goBtn=go;st.upd=()=>{};
+  /* le clavier se montre ou se cache ; l'écran le sait (la bulle se fait plus basse) */
+  st.show=on=>{wrap.style.display=on?'':'none';const sc=wrap.parentElement;if(sc&&sc.classList.contains('kb')!==!!on){sc.classList.toggle('kb',!!on);if(BUB&&BUB.textContent)setBub(BUB.textContent);}};
+  return st;
 }
 document.addEventListener('keydown',e=>{if(!KEYS||KEYS.lock)return;if(/^[0-9]$/.test(e.key)){if(KEYS.val.length<2){KEYS.val+=e.key;KEYS.upd();}}else if(e.key==='Backspace'){KEYS.val=KEYS.val.slice(0,-1);KEYS.upd();}else if(e.key==='Enter'&&KEYS.val)KEYS.go(KEYS.val);});
 
@@ -251,36 +259,100 @@ async function endScreen(me,asked,ok,newly){
   await say('end1');await say('end2');
 }
 
-/* ---------- espace parents ---------- */
+/* ---------- espace parents (appui long sur la roue de l'accueil) ---------- */
+/* sauvegarde : tout l'état tient dans un code à copier-coller (utile sur iPhone, où l'icône
+   de l'écran d'accueil et le navigateur ont chacun leur mémoire) */
+const SAVE_TAG='HECTOR1:';
+const exportCode=()=>SAVE_TAG+btoa(unescape(encodeURIComponent(JSON.stringify(ST))));
+function importCode(txt){
+  const m=String(txt||'').replace(/\s+/g,'').match(/HECTOR1:([A-Za-z0-9+/=]+)/);if(!m)return null;
+  try{const s=JSON.parse(decodeURIComponent(escape(atob(m[1]))));
+    if(!s||typeof s!=='object'||typeof s.f!=='object'||!Array.isArray(s.log))return null;return s;}catch(e){return null;}
+}
+const plural=(n,w)=>`${n} ${w}${n>1?'s':''}`;
 function openPanel(){
-  const p=h('div',{class:'panel'});
+  const p=h('div',{class:'panel',role:'dialog','aria-label':'Espace parents'});
+  let restoreOpen=false,msg='';
   const draw=()=>{
-    const weak=FACTS.filter(id=>known(id)&&ST.f[id].box<=1&&ST.f[id].ko>0).map(id=>ab(id).join(' × '));
+    const t=today(),m=mastered();
+    const learning=FACTS.filter(id=>known(id)&&ST.f[id].box<3).length;
+    const weak=FACTS.filter(id=>known(id)&&ST.f[id].box<=1&&ST.f[id].ko>0).sort((x,y)=>ST.f[y].ko-ST.f[x].ko);
+    const first=ST.log.find(l=>typeof l.m==='number');
+    const days=[];for(let i=6;i>=0;i--){const d=t-i,dt=new Date((d)*86400000);days.push({d,on:ST.log.some(l=>l.d===d),lab:['Di','Lu','Ma','Me','Je','Ve','Sa'][dt.getUTCDay()]});}
+    const week=days.filter(x=>x.on).length;
+    const preL={x10:'les calculs × 10',add:'les additions (35 + 7)',sub:'les soustractions (70 − 7)'};
+    const preW=Object.keys(ST.pre).filter(k=>ST.pre[k].ko>0&&!ST.pre[k].last).map(k=>preL[k]).filter(Boolean);
+    const tech=['les coffres','tourner'].concat(ST.t.cut?['couper']:[],ST.t.ten?['presque dix']:[]);
+    const card=(title,...kids)=>h('section',{class:'pcard'},h('h3',{},title),...kids);
+    const restore=restoreOpen?(()=>{const ta=h('textarea',{class:'pcode',placeholder:'Collez ici le code qui commence par HECTOR1:','aria-label':'Code de sauvegarde'});
+      const go=h('button',{class:'btn primary',onclick:()=>{const s=importCode(ta.value);
+        if(!s){msg='Ce code n’est pas reconnu. Vérifiez qu’il est complet, de HECTOR1: jusqu’à la fin.';draw();return;}
+        const voice=ST.voice;ST={voice:true,intro:false,chap:0,t:{cut:0,ten:0},pre:{},placed:false,hardIdx:0,f:{},log:[]};Object.assign(ST,s);ST.voice=voice;ST.t=ST.t||{cut:0,ten:0};ST.pre=ST.pre||{};save();
+        restoreOpen=false;msg=`Progression restaurée : ${mastered()} calculs sus.`;draw();}},'Restaurer cette progression');
+      return h('div',{class:'prestore'},ta,h('p',{class:'pnote'},'La progression de cet appareil sera remplacée par celle du code.'),go);})():null;
     p.replaceChildren(...[
-      h('h2',{},'Espace parents'),
-      h('p',{},`${mastered()} calculs sus sur 36 (a × b et b × a comptent pour un seul). ${ST.log.length} séance${ST.log.length>1?'s':''} jouée${ST.log.length>1?'s':''}.`),
-      weak.length?h('p',{},'À retravailler : '+weak.join(', ')+'.'):null,
-      (()=>{const L={x10:'× 10',add:'additions (35 + 7)',sub:'soustractions (70 − 7)'};const w=Object.keys(ST.pre).filter(k=>ST.pre[k].ko>0&&!ST.pre[k].last).map(k=>L[k]);return w.length?h('p',{},'Étapes des techniques à revoir : '+w.join(', ')+'. Hector les reprend en « petit rappel ».'):null;})(),
-      h('p',{},'Techniques vues : les coffres, tourner'+(ST.t.cut?', couper':'')+(ST.t.ten?', presque dix':'')+'.'),
-      h('h3',{},'Comment ça marche'),
-      h('ul',{},
-        h('li',{},'Une séance de 5 à 7 minutes par jour suffit. Pas de chronomètre, pas de points perdus.'),
-        h('li',{},'Au départ, Hector vérifie les tables de 2 à 5 avec Eden (acquises en CE1). Il ne reste que 10 calculs vraiment nouveaux : de 6 × 6 à 9 × 9.'),
-        h('li',{},'Premier jour : le sens de « fois » (les coffres) et « tourner » (3 × 4 = 4 × 3), puis un court test. Les techniques « couper » (5 rangées + le reste) et « presque dix » (pour le 9) sont enseignées le jour où un calcul en a besoin.'),h('li',{},'Chaque nouveau calcul est construit avec la technique : Eden touche, coupe, complète, et répond à de petites questions reliées au dessin.'),h('li',{},'Après une erreur, Hector ne donne pas la réponse : il dit ce que l’erreur montre (une rangée de trop, ou un + à la place du ×), refait la technique avec Eden, puis Eden réessaie.'),h('li',{},'Un calcul trouvé mais lent (plus de 9 secondes) n’est pas encore compté comme « su » : il revient plus souvent.'),
-        h('li',{},'Un calcul raté revient plus tard dans la séance, puis le lendemain. Un calcul réussi revient de plus en plus tard.')),
-      h('h3',{},'Réglages'),
-      h('button',{class:'btn',onclick:()=>{ST.voice=!ST.voice;save();draw();}},ST.voice?'Voix de Hector : activée':'Voix de Hector : coupée'),
-      h('button',{class:'btn',onclick:()=>{if(confirm('Tout effacer et recommencer ?')){ST={voice:ST.voice,intro:false,chap:0,t:{cut:0,ten:0},pre:{},placed:false,hardIdx:0,f:{},log:[]};save();p.remove();showHome();}}},'Recommencer à zéro'),
-      h('p',{style:'opacity:.6;font-size:14px'},'Version '+APP_VERSION+' · voix : '+VMODE),
-      h('div',{style:'margin-top:16px'},h('button',{class:'btn',style:'background:#2640C9;color:#fff',onclick:()=>p.remove()},'Fermer'))].filter(Boolean));
+      h('div',{class:'phead'},h('h2',{},'Espace parents'),h('button',{class:'pclose','aria-label':'Fermer',onclick:()=>p.remove()},'Fermer')),
+      msg?h('p',{class:'pmsg',role:'status'},msg):null,
+      card('Où en est Eden',
+        h('div',{class:'pbig'},h('b',{},String(m)),h('span',{},' calculs sus sur 36')),
+        h('div',{class:'pbar'},h('i',{style:`width:${Math.round(m/36*100)}%`}),h('i',{class:'l',style:`width:${Math.round(learning/36*100)}%`})),
+        h('p',{class:'pnote'},`${plural(learning,'calcul')} en cours d’apprentissage. 3 × 7 et 7 × 3 comptent pour un seul.`),
+        first&&ST.log.length>1?h('p',{},'Depuis la première séance : ',h('b',{},`${first.m} → ${m} calculs sus`),m>first.m?` (+${m-first.m})`:''):null),
+      card('Cette semaine',
+        h('div',{class:'pweek'},days.map(x=>h('span',{class:x.on?'on':'',title:x.on?'séance faite':'pas de séance'},x.lab))),
+        h('p',{},week?`${plural(week,'séance')} sur les 7 derniers jours, ${plural(ST.log.length,'séance')} en tout.`:'Pas encore de séance cette semaine.'),
+        h('p',{class:'pnote'},'Une séance de 5 à 7 minutes par jour suffit. La régularité compte plus que la durée.')),
+      card('À travailler',
+        weak.length?h('div',{class:'chips pchips'},weak.slice(0,6).map(id=>h('span',{class:'chip'},ab(id).join(' × ')))):h('p',{},'Rien de particulier : les erreurs sont reprises au fil des séances.'),
+        weak.length?h('p',{},`Idée pour la maison : demandez-lui ${ab(weak[0]).join(' × ')} à l’oral, sans presser. S’il hésite, laissez-le retrouver le résultat avec une technique d’Hector.`):null,
+        preW.length?h('p',{},'Étapes à consolider : '+preW.join(', ')+'. Hector les reprend en « petit rappel ».'):null,
+        h('p',{class:'pnote'},'Techniques déjà vues : '+tech.join(', ')+'.')),
+      card('Sauvegarde',
+        h('p',{},'La progression reste sur cet appareil, rien n’est envoyé sur internet. Le code ci-dessous permet de la garder de côté ou de la passer sur un autre appareil.'),
+        h('div',{class:'prow'},
+          h('button',{class:'btn primary',onclick:async e=>{const c=exportCode();let ok=false;try{await navigator.clipboard.writeText(c);ok=true;}catch(_){}
+            if(!ok){const ta=h('textarea',{class:'pcode',readonly:'readonly'},c);e.target.after(ta);ta.select();msg='Sélectionnez le code et copiez-le.';}
+            else msg='Code copié. Collez-le dans une note ou un message pour le garder.';draw();}},'Copier le code'),
+          h('button',{class:'btn',onclick:()=>{restoreOpen=!restoreOpen;msg='';draw();}},restoreOpen?'Annuler':'Restaurer un code')),
+        restore),
+      card('Comment Hector enseigne',
+        h('ul',{},
+          h('li',{},'Au départ, un court test : les tables de 2 à 5, vues en CE1, sont vérifiées. Il reste peu de calculs vraiment nouveaux, de 6 × 6 à 9 × 9.'),
+          h('li',{},'Le sens d’abord : « fois », ce sont des coffres d’autant de pièces ; tourner le rectangle montre que 3 × 4 = 4 × 3.'),
+          h('li',{},'Les techniques « couper » (5 rangées et le reste) et « presque dix » (pour le 9) sont montrées le jour où un calcul en a besoin.'),
+          h('li',{},'Après une erreur, Hector ne donne pas la réponse : il dit ce que l’erreur montre (une rangée de trop, un + à la place du ×), refait la technique avec Eden, puis Eden réessaie.'),
+          h('li',{},'Un calcul réussi revient de plus en plus tard ; un calcul raté revient dans la séance puis le lendemain. Une réponse juste mais lente (plus de 9 secondes) n’est pas encore comptée comme sue.'))),
+      card('Réglages',
+        h('div',{class:'prow'},
+          h('button',{class:'btn',onclick:()=>{ST.voice=!ST.voice;save();draw();}},ST.voice?'Voix d’Hector : activée':'Voix d’Hector : coupée'),
+          window.EdenInstall&&EdenInstall.need?h('button',{class:'btn',onclick:()=>EdenInstall.show()},'Mettre sur l’écran d’accueil'):null,
+          h('button',{class:'btn danger',onclick:e=>{if(e.target.dataset.sure){ST={voice:ST.voice,intro:false,chap:0,t:{cut:0,ten:0},pre:{},placed:false,hardIdx:0,f:{},log:[]};save();p.remove();showHome();return;}
+            e.target.dataset.sure='1';e.target.textContent='Toucher encore pour tout effacer';}},'Recommencer à zéro'))),
+      h('p',{class:'pver'},'Hector · version '+APP_VERSION)].filter(Boolean));
   };
   draw();ROOT.append(p);
 }
 function boot(){
   const old=document.getElementById('nojs');if(old)old.remove();
   let app=document.getElementById('app');if(!app){app=h('div',{id:'app'});document.body.append(app);}
-  app.replaceChildren();ROOT=app;showHome();
+  app.replaceChildren();ROOT=app;
+  if(!document.querySelector('.turnmsg')){const t=h('div',{class:'turnmsg',role:'alert'});
+    t.innerHTML='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 1h8a3 3 0 013 3v16a3 3 0 01-3 3H8a3 3 0 01-3-3V4a3 3 0 013-3zm0 2a1 1 0 00-1 1v16a1 1 0 001 1h8a1 1 0 001-1V4a1 1 0 00-1-1zm2 15h4v1.6h-4z"/></svg><div>Tourne ton téléphone<br>pour jouer avec Hector</div>';
+    document.body.append(t);}
+  sizeClass();showHome();
 }
+/* la mise en page suit la hauteur réellement disponible (barres du navigateur comprises) :
+   mesurée sur l'appli elle-même, pas sur les unités de l'écran, qui varient selon les navigateurs */
+function sizeClass(){
+  if(!ROOT)return;const H=ROOT.clientHeight||innerHeight,W=ROOT.clientWidth||innerWidth,de=document.documentElement;
+  const was=de.classList.contains('short');de.classList.toggle('short',H<700);
+  de.classList.toggle('tiny',H<600);
+  de.classList.toggle('turn',W>H&&H<500);
+  if(was!==de.classList.contains('short')){const b=BUB&&BUB.textContent;if(b)setBub(b);}
+  const w=document.querySelector('.screen>.work');if(w&&typeof fit==='function')fit(w);
+}
+addEventListener('resize',sizeClass);addEventListener('orientationchange',()=>setTimeout(sizeClass,250));
+if(window.visualViewport)visualViewport.addEventListener('resize',sizeClass);
 
 /* mise à jour : on ne recharge pas en pleine séance, seulement depuis l'accueil */
 window.__safeToReload=()=>!!document.querySelector('.screen.home .play');

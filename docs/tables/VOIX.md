@@ -8,7 +8,7 @@ Un fichier mp3 par morceau dans `src/apps/tables/voice/`, nommé par sa clé :
 
 - **Phrases entières** : même nom que la clé de la phrase dans `js/00_phrases.js` (`hello`, `c3_b`, `diag_row`…). Le texte affiché dans la bulle est celui de `V`.
 - **Morceaux de calcul** :
-  - `p1` « une fois », `p2` « deux fois » ;
+  - `p1` « une fois », `p2` « deux fois » ; `p3` … `p10` (« trois fois »… « dix fois ») s'ils existent : sinon le nombre puis `fois` ;
   - `fois`, `eg` (« égale »), `plus`, `moins`, `nouveau` (« Nouveau calcul ! ») ;
   - `n2` … `n90` : les nombres dits seuls, avec une voix qui conclut.
 
@@ -32,4 +32,4 @@ Un fichier mp3 par morceau dans `src/apps/tables/voice/`, nommé par sa clé :
    Découpe : repérer la parole avec un seuil bas (−55 dB, sinon les consonnes finales disparaissent), puis garder une marge : jusqu'à 0,12 s avant et 0,35 s après (sans dépasser la moitié du silence voisin), fondu de 12 ms à l'entrée et fondu doux à la sortie. Ne jamais rogner au ras du mot. Les morceaux de calcul sont mis au même volume que les phrases.
 3. `python3 scripts/build.py && python3 scripts/check.py`.
 
-Amélioration possible : générer « trois fois », « quatre fois »… d'un seul tenant (une phrase par ligne, avec des points), pour un rythme plus naturel que le collage « trois » + « fois ».
+« Trois fois », « quatre fois »… dits d'un seul tenant (`p3` … `p10`) sonnent plus naturels que le collage « trois » + « fois » : il suffit d'ajouter les fichiers, `seqOf` les utilise d'elle-même.

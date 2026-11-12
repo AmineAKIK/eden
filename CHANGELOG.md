@@ -2,6 +2,22 @@
 
 Format : [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/). Chaque appli a son propre numéro de version (dans son `app.json`).
 
+## 2026-11-12 (d)
+
+### Ajouté
+- Les tables 1.1.0 : espace parents refait (appui long sur la roue de l'accueil). Calculs sus et en cours, progrès depuis la première séance, séances des 7 derniers jours, calculs à travailler avec une idée concrète pour la maison, techniques vues.
+- Sauvegarde de la progression par un code à copier, et restauration. Utile sur iPhone, où l'icône de l'écran d'accueil et le navigateur ont chacun leur mémoire.
+- Aide à l'installation sur iPhone et iPad (catalogue, accueil de l'appli, espace parents) : le geste Partager, puis « Sur l'écran d'accueil », expliqué en trois étapes.
+- Téléphone tourné : un message invite à le remettre droit.
+- Sur iPhone (iOS 17 et plus), la voix d'Hector s'entend même en mode silencieux.
+
+### Corrigé
+- Affichage sur iPhone : la mise en page ne dépend plus de fonctions CSS absentes de certaines versions d'iOS (`:has()`, `safe center`) ni des unités d'écran. La zone de jeu se réajuste d'elle-même quand la bulle ou le clavier changent : le champ de réponse n'est plus caché.
+- Le texte de la bulle ne descend plus sous 15 px : une phrase longue agrandit la bulle au lieu d'être écrasée.
+- Très petit écran (iPhone SE dans Safari) : le clavier passe sur deux rangées pour laisser la place au dessin ; les pièces ne rapetissent plus quand le clavier apparaît.
+- Écran de fin : les boutons ne s'écrasent plus sur les petits écrans.
+- Nouvel audit d'affichage (`tests/audit.py`) : le parcours complet sur cinq tailles de téléphone réelles, chaque écran contrôlé et capturé.
+
 ## 2026-11-12 (c)
 
 ### Corrigé

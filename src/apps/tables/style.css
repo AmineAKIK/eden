@@ -91,7 +91,7 @@ button{font:inherit;color:inherit;border:0;background:none;padding:0;cursor:poin
 .panel ul{margin:4px 0;padding-left:20px}
 .gear{position:absolute;right:8px;bottom:calc(8px + env(safe-area-inset-bottom));width:44px;height:44px;border-radius:50%;opacity:.35;display:flex;align-items:center;justify-content:center}
 .gear svg{width:22px;height:22px;fill:var(--ink2)}
-@media (max-height:700px){.hero{width:60px}.talkrow .hero{width:58px}.eq{font-size:40px}.key{height:46px}}
+:where(html.short) .hero{width:60px}:where(html.short) .talkrow .hero{width:58px}:where(html.short) .eq{font-size:40px}:where(html.short) .key{height:46px}
 @media (prefers-reduced-motion:reduce){.hero .antenna,.hero.talk,.hintbtn.glow{animation:none!important}}
 
 .dt.e{background:transparent;border:2px dashed #B3BEEA}
@@ -140,11 +140,12 @@ button{font:inherit;color:inherit;border:0;background:none;padding:0;cursor:poin
 
 .screen>.work{overflow:hidden}
 
-@media (max-height:700px){.keys{gap:5px;padding-top:2px}.key{height:40px;border-radius:12px;font-size:24px}.talkrow .hero{width:44px}.bubble{min-height:38px;padding:5px 10px;font-size:15px}.ib{width:44px;height:44px}.bar{padding-top:6px}.tagrow{min-height:30px}.eq.sm:not(.sm2){font-size:30px}.dock{padding-bottom:10px}.talkrow{padding-bottom:6px}}
-@media (max-height:700px){.ar{gap:2px}.rw{padding:0 6px;gap:3px}.cutl{height:20px}.cutl.done{margin:0}.eq.sm2{font-size:19px}.work{gap:4px;padding:2px 14px}}
+:where(html.short) .keys{gap:5px;padding-top:2px}:where(html.short) .key{height:40px;border-radius:12px;font-size:24px}:where(html.short) .talkrow .hero{width:44px}:where(html.short) .bubble{min-height:38px;padding:5px 10px;font-size:15px}:where(html.short) .ib{width:44px;height:44px}:where(html.short) .bar{padding-top:6px}:where(html.short) .tagrow{min-height:30px}:where(html.short) .eq.sm:not(.sm2){font-size:30px}:where(html.short) .dock{padding-bottom:10px}:where(html.short) .talkrow{padding-bottom:6px}
+:where(html.short) .ar{gap:2px}:where(html.short) .rw{padding:0 6px;gap:3px}:where(html.short) .cutl{height:20px}:where(html.short) .cutl.done{margin:0}:where(html.short) .eq.sm2{font-size:19px}:where(html.short) .work{gap:4px;padding:2px 14px}
 
 /* v3 : blocs étiquetés, mise en page adaptative */
-.screen>.work{justify-content:safe center}
+.screen>.work{justify-content:center}
+.screen>.work.over{justify-content:flex-start}
 .ar{--d:20px;display:grid;grid-template-columns:auto auto;column-gap:10px;row-gap:4px;align-items:center;justify-content:center}
 .ar .dt{width:var(--d);height:var(--d);border-width:max(1px,calc(var(--d)/10))}
 .rows{display:flex;flex-direction:column;gap:3px;transition:opacity .25s}
@@ -162,7 +163,7 @@ button{font:inherit;color:inherit;border:0;background:none;padding:0;cursor:poin
 .eq.res{color:var(--green)}
 .tcard.lock{opacity:.45}
 .big.alt svg{fill:var(--bic)}
-@media (max-height:700px){.lab{font-size:16px}.rl{font-size:13px}}
+:where(html.short) .lab{font-size:16px}:where(html.short) .rl{font-size:13px}
 
 .catbtn{position:absolute;left:14px;top:calc(12px + env(safe-area-inset-top))}
 .home{position:relative}
@@ -175,7 +176,50 @@ button{font:inherit;color:inherit;border:0;background:none;padding:0;cursor:poin
 
 /* la bulle d'Hector garde la même hauteur quel que soit le texte : la scène ne bouge pas quand il parle */
 .talkrow .bubble{height:146px;overflow:hidden;align-items:center}
-@media (max-height:700px){.talkrow .bubble{height:104px}}
+:where(html.short) .talkrow .bubble{height:104px}
 /* avec le clavier, la bulle est plus basse (questions courtes) : la place va au rectangle */
-.screen:has(> .keys:not([style*="display: none"])) .talkrow .bubble{height:80px}
-@media (max-height:700px){.screen:has(> .keys:not([style*="display: none"])) .talkrow .bubble{height:62px}}
+.screen.kb .talkrow .bubble{height:80px}
+:where(html.short) .screen.kb .talkrow .bubble{height:62px}
+
+/* téléphone tourné : on invite à le remettre droit plutôt que d'écraser la scène */
+.turnmsg{display:none}
+html.turn .turnmsg{display:flex;position:fixed;inset:0;z-index:100;background:#2640C9;color:#fff;flex-direction:column;align-items:center;justify-content:center;gap:14px;font-family:'Fredoka',sans-serif;font-size:26px;text-align:center;padding:20px}
+.turnmsg svg{width:64px;height:64px;fill:#fff;animation:rot90 2.4s ease-in-out infinite}
+@keyframes rot90{0%,30%{transform:rotate(-90deg)}60%,100%{transform:rotate(0)}}
+
+/* espace parents : des cartes lisibles, pensées pour un adulte pressé */
+.panel{background:#F3F6FF;padding:calc(14px + env(safe-area-inset-top)) 16px calc(24px + env(safe-area-inset-bottom));user-select:text;-webkit-user-select:text}
+.phead{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:12px}
+.phead h2{margin:0;font-family:'Fredoka',sans-serif;font-weight:400;font-size:28px;color:var(--bic)}
+.pclose{padding:10px 16px;border-radius:999px;background:#fff;border:2px solid var(--line);font-weight:600;font-size:16px;color:var(--bic)}
+.pcard{background:#fff;border:1px solid var(--line);border-radius:18px;padding:14px 16px;margin-bottom:12px}
+.panel .pcard h3{margin:0 0 8px;font-size:15px;color:var(--ink2);font-weight:600}
+.pcard p{margin:6px 0}
+.pbig{font-family:'Fredoka',sans-serif;color:var(--ink);font-size:20px}.pbig b{font-weight:400;font-size:44px;color:var(--green);margin-right:4px}
+.pbar{display:flex;height:12px;border-radius:999px;background:#E3E7F6;overflow:hidden;margin:8px 0}
+.pbar i{display:block;height:100%;background:var(--green)}.pbar i.l{background:#FFD45C}
+.pnote{font-size:15px;color:var(--ink2)}
+.pweek{display:flex;gap:6px;margin:4px 0 8px}
+.pweek span{width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:600;font-size:14px;background:#E3E7F6;color:var(--ink2)}
+.pweek span.on{background:var(--green);color:#fff}
+.pchips{justify-content:flex-start;margin:4px 0 6px}.pchips .chip{font-size:20px;background:#FFF1B8;border-color:#E0BC00}
+.prow{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}
+.panel .btn{margin:0}.panel .btn.primary{background:var(--bic);color:#fff;border-color:var(--bic)}
+.panel .btn.danger{color:var(--red);background:#fff}
+.pcode{display:block;width:100%;min-height:90px;margin:8px 0;padding:10px;border-radius:12px;border:2px solid var(--line);font:13px/1.35 ui-monospace,Menlo,monospace;color:var(--ink);resize:vertical;user-select:text;-webkit-user-select:text}
+.pmsg{background:#E3F7EE;border:1px solid #9FDDC2;color:#06452E;border-radius:14px;padding:10px 14px;margin:0 0 12px}
+.pver{text-align:center;font-size:13px;color:var(--ink2);opacity:.7}
+.panel ul{padding-left:18px}.panel li{margin:4px 0}
+/* aide à l'installation, discrète : elle s'adresse aux parents */
+.instl{font-size:15px;color:var(--ink2);text-decoration:underline;text-underline-offset:3px;padding:6px 10px}
+
+/* très petit écran (iPhone SE dans Safari) : le clavier passe sur deux rangées de chiffres,
+   comme la rangée du haut d'un clavier d'ordinateur ; la place gagnée va au dessin */
+:where(html.tiny) .keys{grid-template-columns:repeat(6,1fr);gap:6px}
+:where(html.tiny) .key{height:46px;font-size:26px}
+:where(html.tiny) .keys .key[aria-label="1"]{order:1}:where(html.tiny) .keys .key[aria-label="2"]{order:2}:where(html.tiny) .keys .key[aria-label="3"]{order:3}:where(html.tiny) .keys .key[aria-label="4"]{order:4}:where(html.tiny) .keys .key[aria-label="5"]{order:5}:where(html.tiny) .keys .key.del{order:6}
+:where(html.tiny) .keys .key[aria-label="6"]{order:7}:where(html.tiny) .keys .key[aria-label="7"]{order:8}:where(html.tiny) .keys .key[aria-label="8"]{order:9}:where(html.tiny) .keys .key[aria-label="9"]{order:10}:where(html.tiny) .keys .key[aria-label="0"]{order:11}:where(html.tiny) .keys .key.go{order:12}
+/* écran de fin : les boutons passent à la ligne plutôt que de s'écraser */
+.end .row2{flex-wrap:wrap;align-items:center}.pill{white-space:nowrap}
+.end .sub,.home .sub{text-wrap:balance}
+:where(html.short) .end{gap:10px}:where(html.short) .end .hero{width:92px}:where(html.short) .end h2{font-size:34px}

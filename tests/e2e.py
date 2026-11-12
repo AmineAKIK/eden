@@ -179,14 +179,34 @@ async def update(p):
     print("  ✓ mise à jour : appliquée d'elle-même, progression conservée")
 
 
+async def backup(p, base):
+    """Le code de sauvegarde de l'espace parents restaure exactement la progression."""
+    b = await p.chromium.launch()
+    pg = await (await b.new_context()).new_page()
+    await pg.goto(base + "apps/tables/")
+    await pg.wait_for_selector(".play")
+    r = await pg.evaluate("""(()=>{ST.f={'6-7':{box:3,due:5,ok:4,ko:1}};ST.log=[{d:1,n:10,ok:8,m:12}];ST.placed=true;save();
+      const c=exportCode();ST.f={};ST.log=[];save();const s=importCode('  copie : '+c+'\\n');
+      return [c.startsWith('HECTOR1:'),s&&s.f['6-7'].box,s&&s.log[0].m,importCode('HECTOR1:abc'),importCode('n importe quoi')]})()""")
+    await b.close()
+    assert r == [True, 3, 12, None, None], f"sauvegarde : {r}"
+    print("  ✓ sauvegarde : le code restaure la progression, un code abîmé est refusé")
+
+
 async def main():
     OUT.mkdir(exist_ok=True)
     base = serve()
     async with async_playwright() as p:
         await catalogue(p, base)
         await update(p)
+        await backup(p, base)
         for name, w, h in SCREENS:
             await play_tables(p, base, name, w, h)
+    # affichage sur les tailles d'écran réelles (tests/audit.py)
+    import subprocess
+    r = subprocess.run([sys.executable, str(Path(__file__).parent / "audit.py")], capture_output=True, text=True)
+    print("\n".join("  " + l for l in r.stdout.strip().splitlines()))
+    assert r.returncode == 0, "audit d'affichage : des écrans posent problème (voir ci-dessus)"
     print("\nTous les tests passent.")
 
 
