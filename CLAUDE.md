@@ -7,4 +7,4 @@
 - Ne jamais changer une clé de `localStorage` ni retirer un champ de l'état sans migration : la progression d'Eden est sur ses appareils.
 - Une appli = un seul fichier construit ; pas de framework, pas de dépendance externe chargée depuis un CDN (l'appli doit marcher hors ligne).
 - Mettre à jour `version` dans `app.json` et `CHANGELOG.md` à chaque changement visible.
-- `dist/` n'est pas versionné : GitHub Actions construit et publie.
+- `dist/` n'est pas versionné. Publication : GitHub Actions à chaque envoi sur `main`, ou `python3 scripts/publish.py` (branche `gh-pages`).

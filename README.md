@@ -28,7 +28,10 @@ python3 -m http.server       # puis ouvrir http://localhost:8000/dist/
 
 Les tests de bout en bout demandent Playwright : `pip install -r tests/requirements.txt && python3 -m playwright install chromium`.
 
-Chaque envoi sur `main` est construit, vérifié, testé, puis mis en ligne par GitHub Actions (`.github/workflows/deploy.yml`). Si une étape échoue, rien n'est publié.
+Publication, deux voies équivalentes (construire, vérifier, tester, puis mettre en ligne ; si une étape échoue, rien n'est publié) :
+
+- **GitHub Actions** (`.github/workflows/deploy.yml`) : à chaque envoi sur `main`. Réglage du dépôt : Settings → Pages → Source « GitHub Actions ».
+- **Branche `gh-pages`** : `python3 scripts/publish.py`, quand Actions n'est pas disponible. Réglage : Settings → Pages → Source « Deploy from a branch », branche `gh-pages`, dossier `/ (root)`.
 
 ## Organisation
 

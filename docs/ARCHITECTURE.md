@@ -35,4 +35,4 @@ Règles à respecter :
 
 - `scripts/check.py` : syntaxe de chaque script construit et du service worker, chaque phrase dite par le code a sa voix, manifeste et fichiers en cache présents.
 - `tests/e2e.py` : dans Chromium, un robot ouvre le catalogue, vérifie le hors-ligne, puis joue tout le parcours des tables (avec des erreurs volontaires) sur deux tailles d'écran. Il vérifie qu'il n'y a aucune erreur JavaScript et que rien ne déborde de l'écran.
-- GitHub Actions lance les trois à chaque envoi ; la mise en ligne n'a lieu que si tout passe.
+- GitHub Actions lance les trois à chaque envoi ; la mise en ligne n'a lieu que si tout passe. `scripts/publish.py` fait la même chose en local et publie sur la branche `gh-pages`.
