@@ -113,7 +113,11 @@ async function playKey(k){
   return new Promise(res=>{let d=false;const fin=()=>{if(!d){d=true;if(curRes===fin)curRes=null;res();}};curRes=fin;
     try{const u=new SpeechSynthesisUtterance(V[k]);u.lang='fr-FR';u.rate=.92;u.onend=fin;u.onerror=fin;speechSynthesis.speak(u);}catch(e){fin();}setTimeout(fin,12000);});
 }
-function setBub(t){if(BUB)BUB.textContent=t||'';}
+/* bulle de hauteur fixe : le texte rétrécit s'il est long, pour que rien ne bouge à l'écran */
+function setBub(t){if(!BUB)return;BUB.textContent=t||'';BUB.style.fontSize='';
+  if(!BUB.isConnected||!BUB.closest('.talkrow'))return;
+  let f=parseFloat(getComputedStyle(BUB).fontSize);
+  for(let i=0;i<10&&BUB.scrollHeight>BUB.clientHeight+1&&f>12;i++){f-=1;BUB.style.fontSize=f+'px';}}
 function mood(m){if(!HERO)return;HERO.classList.remove('m-happy','m-think','m-wow','m-oops');HERO.classList.add('m-'+m);if(m==='wow'||m==='happy'){HERO.classList.remove('hop');void HERO.offsetWidth;HERO.classList.add('hop');}}
 let RUN=0;class Ab extends Error{}
 async function say(k,{sub=true}={}){

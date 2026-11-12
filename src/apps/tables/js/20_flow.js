@@ -44,14 +44,24 @@ function mkBlocks(cols,parts){
 }
 const rowCounts=(rows,cols)=>rows.forEach((r,i)=>{let l=r.querySelector('.rl');if(!l){l=h('span',{class:'rl'});r.append(l);}l.textContent=String((i+1)*cols);});
 const focusBlk=(A,i)=>A.blocks.forEach((b,k)=>{const on=i===-1||k===i;b.rowsEl.classList.toggle('dim',!on);b.lab.classList.toggle('dim',!on);});
-const hideK=S=>{S.K.el.style.display='none';KEYS=null;};
+/* changement de mise en page sans saut : chaque bloc glisse de son ancienne place à la nouvelle */
+function smooth(box,change){
+  if(!box||!box.isConnected){change();return;}
+  const kids=[...box.children],before=kids.map(k=>k.getBoundingClientRect().top);
+  change();fit(box);
+  kids.forEach((k,i)=>{if(!k.isConnected)return;const dy=before[i]-k.getBoundingClientRect().top;if(Math.abs(dy)<1)return;
+    k.style.transition='none';k.style.transform=`translateY(${dy}px)`;k.getBoundingClientRect();
+    k.style.transition='transform .35s ease';k.style.transform='';setTimeout(()=>{k.style.transition='';},420);});
+}
+const hideK=S=>{if(S.K.el.style.display!=='none')smooth(S.work,()=>{S.K.el.style.display='none';});KEYS=null;};
 
 /* petite question au clavier, liée au dessin.
    1re erreur : une aide visuelle ciblée ; 2e erreur : la réponse s'affiche, avec le dessin. */
 async function askNum(S,host,expr,expected,qkey,o={}){
   const {K}=S;const ans=h('span',{class:'ans'},'?');
   const eq=h('div',{class:'eq sm'},h('span',{},expr+' ='),ans);host.append(eq);
-  K.el.style.display='';K.val='';K.lock=false;KEYS=K;K.upd=()=>{ans.textContent=K.val||'?';};
+  if(K.el.style.display==='none')smooth(S.work,()=>{K.el.style.display='';});
+  K.val='';K.lock=false;KEYS=K;K.upd=()=>{ans.textContent=K.val||'?';};
   fit(S.work);
   setBub('Combien font '+expr+' ?');mood('think');
   if(qkey)say(qkey,{sub:false});

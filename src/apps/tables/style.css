@@ -121,12 +121,13 @@ button{font:inherit;color:inherit;border:0;background:none;padding:0;cursor:poin
 .rw{display:flex;gap:4px;padding:2px 6px;border-radius:12px;transition:background .2s}
 .rw.gh .dt{background:transparent;border:2px dashed #8A93C4}
 .rw.low .dt.y{background:#E5503A}
-.rw.tapme{background:#FFF1B8;cursor:pointer}
+.rw{transition:background .45s ease,opacity .35s ease}
+.rw.tapme{background:#FFF1B8;cursor:pointer;border-radius:10px}
 .cutl{height:30px;width:100%;display:flex;align-items:center;transition:margin .4s}
 .cutl i{display:block;width:100%;border-top:4px dashed var(--red)}
 .cutl.done{margin:8px 0}.cutl.done i{border-top-color:transparent}
-.tapme{animation:tapme 1s ease-in-out infinite}
-@keyframes tapme{50%{transform:scale(1.05);box-shadow:0 0 0 7px #FFE14D99}}
+.tapme{outline:5px solid rgba(255,214,61,0);outline-offset:5px;animation:tapme 1.8s ease-in-out infinite}
+@keyframes tapme{0%,100%{outline-color:rgba(255,214,61,0)}50%{outline-color:rgba(255,214,61,.75)}}
 .pk.chest{background:#FFF3D6;border:3px solid #C98A12;border-radius:16px}
 .pk.chest.on{background:#FFE29A;border-color:#8A5A00}
 .eq.sm{font-size:clamp(30px,9vw,42px);gap:8px}
@@ -165,3 +166,15 @@ button{font:inherit;color:inherit;border:0;background:none;padding:0;cursor:poin
 
 .catbtn{position:absolute;left:14px;top:calc(12px + env(safe-area-inset-top))}
 .home{position:relative}
+
+/* pas de rupture visuelle : la taille des pièces change en douceur, la ligne de coupe se referme en douceur */
+@property --d{syntax:'<length>';inherits:true;initial-value:20px}
+.ar{transition:--d .35s ease}
+.ar .cutl{transition:height .35s ease,margin .35s ease}
+.ar .cutl i{transition:border-top-color .35s ease}
+.dt.nx{animation:none}
+@media (prefers-reduced-motion:reduce){.ar,.ar .cutl,.rw{transition:none}}
+
+/* la bulle d'Hector garde la même hauteur quel que soit le texte : la scène ne bouge pas quand il parle */
+.talkrow .bubble{height:146px;overflow:hidden;align-items:center}
+@media (max-height:700px){.talkrow .bubble{height:104px}}

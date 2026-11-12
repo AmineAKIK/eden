@@ -5,6 +5,7 @@ Format : [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/). Chaque appli 
 ## 2026-11-12 (b)
 
 ### Corrigé
+- Les tables 1.0.4 : plus de « vibration » quand un élément devient à toucher. L'invitation est un halo qui apparaît en douceur, sans agrandir l'élément ; les changements de taille du rectangle et la coupe sont animés en douceur. La bulle d'Hector garde une hauteur fixe (le texte s'adapte), et l'arrivée ou le départ du clavier fait glisser la scène au lieu de la faire sauter.
 - Mises à jour : une nouvelle publication s'applique d'elle-même (vérification à l'ouverture et au retour sur l'appli, téléchargement sans cache HTTP, rechargement automatique hors séance). Plus besoin d'effacer les données du site.
 - Les tables 1.0.3 : dans les chapitres « couper » et « presque dix », le rectangle s'affiche avant qu'Hector en parle (il apparaissait après sa phrase).
 - Les tables 1.0.2 : la bulle de l'écran d'accueil d'Hector occupait tout l'écran.
