@@ -6,7 +6,16 @@
   "version": "1.2.0",
   "storageKey": "eden:tables",
   "themeColor": "#E9EDFB",
-  "js": ["js/00_phrases.js", "js/10_app.js", "js/20_flow.js", "js/30_session.js", "js/99_boot.js"],
-  "css": ["style.css"],
+  "js": [
+    "js/00_phrases.js",
+    "js/10_app.js",
+    "js/20_flow.js",
+    "js/30_session.js",
+    "js/40_parents.js",
+    "js/99_boot.js"
+  ],
+  "css": [
+    "style.css"
+  ],
   "voice": "voice"
 }

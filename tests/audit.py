@@ -152,15 +152,21 @@ async def extras(p, base, name, w, h):
     await pg.wait_for_selector(".play")
     async def shot(tag):
         await pg.wait_for_timeout(400)
-        overlay = tag in ("installer", "parents", "parents-reglages", "parents-bas", "tourne", "roue-appui-court")  # par-dessus l'accueil : normal
+        overlay = tag in ("installer", "parents", "parents-progres", "parents-reglages", "parents-sauvegarde", "parents-methode", "parents-confirmer", "tourne", "roue-appui-court")  # par-dessus l'accueil : normal
         pb = ([] if overlay else await pg.evaluate(CHECK)) + (await pg.evaluate(WIDE))
         await pg.screenshot(path=d / f"x-{tag}.png", full_page=False)
         if pb: problems[tag] = sorted(set(pb))
     await shot("accueil")
     await pg.evaluate("EdenInstall.show()"); await shot("installer")
     await pg.evaluate("document.querySelector('.ins-bg').remove();openPanel()"); await shot("parents")
-    await pg.evaluate("document.querySelector('.panel').scrollTop=document.querySelector('.panel .pseg').offsetTop-80"); await shot("parents-reglages")
-    await pg.evaluate("document.querySelector('.panel').scrollTop=99999"); await shot("parents-bas")
+    rowjs = "t=>[...document.querySelectorAll('.panel .prow2')].find(r=>r.textContent.includes(t)).click()"
+    for t, tag in [("Ses progrès", "parents-progres"), ("Réglages", "parents-reglages"), ("Sauvegarde", "parents-sauvegarde"), ("Comment Hector", "parents-methode")]:
+        await pg.evaluate("document.querySelector('.panel .pnav').click()") if tag != "parents-progres" else None
+        await pg.evaluate(rowjs, t); await shot(tag)
+    await pg.evaluate("document.querySelector('.panel .pnav').click()")
+    await pg.evaluate(rowjs, "Réglages"); await pg.evaluate("document.querySelector('.panel .pbody').scrollTop=9999")
+    await pg.evaluate(rowjs, "Effacer"); await shot("parents-confirmer")
+    await pg.evaluate("document.querySelector('.psheet .pbtn').click()")
     await pg.evaluate("document.querySelector('.panel').remove();showGrid()"); await shot("grille")
     await pg.evaluate("document.querySelectorAll('.grid button.gc')[45].click()"); await shot("grille-case")
     await pg.evaluate("showHome()"); await pg.click(".gear"); await shot("roue-appui-court")

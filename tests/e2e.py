@@ -182,15 +182,31 @@ async def update(p):
 async def backup(p, base):
     """Le code de sauvegarde de l'espace parents restaure exactement la progression."""
     b = await p.chromium.launch()
-    pg = await (await b.new_context()).new_page()
+    pg = await (await b.new_context(accept_downloads=True)).new_page()
     await pg.goto(base + "apps/tables/")
     await pg.wait_for_selector(".play")
     r = await pg.evaluate("""(()=>{ST.f={'6-7':{box:3,due:5,ok:4,ko:1}};ST.log=[{d:1,n:10,ok:8,m:12}];ST.placed=true;save();
       const c=exportCode();ST.f={};ST.log=[];save();const s=importCode('  copie : '+c+'\\n');
       return [c.startsWith('HECTOR1:'),s&&s.f['6-7'].box,s&&s.log[0].m,importCode('HECTOR1:abc'),importCode('n importe quoi')]})()""")
+    # par l'espace parents : enregistrer une copie (fichier), tout effacer, reprendre la copie
+    await pg.evaluate("ST.f={'2-3':{box:4,due:99,ok:3,ko:0},'6-7':{box:3,due:5,ok:4,ko:1}};ST.log=[{d:1,n:10,ok:8,m:2}];save();openPanel()")
+    row = "t=>[...document.querySelectorAll('.panel .prow2')].find(r=>r.textContent.includes(t)).click()"
+    await pg.evaluate(row, "Sauvegarde")
+    async with pg.expect_download() as dl:
+        await pg.evaluate(row, "Enregistrer une copie")
+    path = await (await dl.value).path()
+    await pg.evaluate("ST.f={};ST.log=[];save()")
+    async with pg.expect_file_chooser() as fc:
+        await pg.evaluate(row, "Reprendre une copie")
+    await (await fc.value).set_files(path)
+    await pg.wait_for_selector(".psheet")
+    await pg.evaluate("document.querySelector('.psheet .primary').click()")
+    await pg.wait_for_timeout(300)
+    back = await pg.evaluate("mastered()")
     await b.close()
     assert r == [True, 3, 12, None, None], f"sauvegarde : {r}"
-    print("  ✓ sauvegarde : le code restaure la progression, un code abîmé est refusé")
+    assert back == 2, f"copie par fichier non reprise ({back} calculs sus au lieu de 2)"
+    print("  ✓ sauvegarde : une copie enregistrée puis reprise restaure la progression, un fichier abîmé est refusé")
 
 
 async def main():

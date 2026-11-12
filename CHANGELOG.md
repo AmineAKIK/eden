@@ -6,8 +6,9 @@ Format : [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/). Chaque appli 
 
 ### Ajouté
 - Les tables 1.2.0 : Hector explique « Ma grille » à la première visite (une case = la ligne fois la colonne, les couleurs, 3 × 7 = 7 × 3). Chaque case se touche : la ligne et la colonne s'allument, la case jumelle aussi, et Hector dit le calcul. Le bouton haut-parleur réexplique.
-- Réglages dans l'espace parents : durée d'une séance (courte, normale, longue), temps pour une réponse sûre (9 ou 15 secondes), voix, petits sons, revoir l'histoire du début.
-- Espace parents : explication de la grille et de ses couleurs.
+- Espace parents entièrement refait, en pages courtes : l'essentiel en un coup d'œil (calculs sus, séances de la semaine), puis Ses progrès (la grille et ses couleurs, ce qui bloque, une idée pour la maison), Réglages, Sauvegarde, Comment Hector enseigne.
+- Réglages en langage simple : durée d'une séance (≈ 4, 6 ou 9 minutes), « laisser plus de temps pour répondre », voix, petits sons, revoir l'histoire du début, effacer la progression. Chaque action importante demande confirmation dans la page.
+- Sauvegarde par fichier au lieu d'un code à copier : « Enregistrer une copie » (Fichiers, message…) et « Reprendre une copie », avec la marche à suivre pour passer du navigateur à l'icône sur iPhone. Les codes des versions 1.1 restent acceptés.
 - « Trois fois », « quatre fois »… dits d'un seul tenant.
 
 ### Corrigé
