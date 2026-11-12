@@ -161,6 +161,8 @@ function hintView(a0,b0,anim,disp){
 
 /* ---------- accueil ---------- */
 function showHome(){
+  /* une mise à jour attendait un moment calme : on l'applique en revenant à l'accueil */
+  if(window.__updatePending){location.reload();return;}
   const doneToday=ST.log.some(l=>l.d===today());
   const m=mastered();
   const hero=makeHero();
@@ -266,3 +268,6 @@ function boot(){
   let app=document.getElementById('app');if(!app){app=h('div',{id:'app'});document.body.append(app);}
   app.replaceChildren();ROOT=app;showHome();
 }
+
+/* mise à jour : on ne recharge pas en pleine séance, seulement depuis l'accueil */
+window.__safeToReload=()=>!!document.querySelector('.screen.home .play');

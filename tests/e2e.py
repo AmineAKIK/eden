@@ -6,6 +6,7 @@
 
 Ce qui est vérifié :
   - catalogue : affichage, service worker, ouverture d'une appli, retour, hors ligne ;
+  - mise à jour : une nouvelle publication s'applique d'elle-même, sans perdre la progression ;
   - Les tables : un robot joue tout le parcours (prologue, test de départ, séance avec
     erreurs volontaires) sur deux tailles d'écran ; aucune erreur JavaScript, et rien
     ne déborde de l'écran.
@@ -140,11 +141,49 @@ async def play_tables(p, base, name, w, h):
     print(f"  ✓ tables ({name} {w}×{h}) : parcours complet, {mains} calculs, {shots} écrans, rien ne déborde")
 
 
+async def update(p):
+    """Une nouvelle publication arrive d'elle-même, sans effacer la progression."""
+    import shutil, tempfile
+    tmp = Path(tempfile.mkdtemp())
+    shutil.copytree(ROOT / "dist", tmp / "dist")
+
+    class Quiet(http.server.SimpleHTTPRequestHandler):
+        def log_message(self, *a):
+            pass
+    srv = http.server.ThreadingHTTPServer(("127.0.0.1", 0), functools.partial(Quiet, directory=str(tmp)))
+    threading.Thread(target=srv.serve_forever, daemon=True).start()
+    base = f"http://127.0.0.1:{srv.server_port}/dist/"
+    b = await p.chromium.launch()
+    ctx = await b.new_context()
+    pg = await ctx.new_page()
+    await pg.goto(base + "apps/tables/")
+    await pg.wait_for_function("navigator.serviceWorker.controller!==null", timeout=15000)
+    await pg.evaluate("localStorage.setItem('eden:tables', JSON.stringify({intro:true,chap:2,placed:true,t:{cut:1,ten:0},pre:{},f:{'6-7':{box:3,due:0,ok:3,ko:0}},log:[]}))")
+    await pg.reload()
+    await pg.wait_for_selector(".play")
+    # nouvelle publication : la page change, donc la version du service worker aussi
+    page = tmp / "dist/apps/tables/index.html"
+    page.write_text(page.read_text(encoding="utf-8").replace("<title>", "<title>MAJ-TEST ", 1), encoding="utf-8")
+    sw = tmp / "dist/sw.js"
+    sw.write_text(sw.read_text(encoding="utf-8").replace("const CACHE='eden-", "const CACHE='eden-maj", 1), encoding="utf-8")
+    async with pg.expect_navigation(timeout=20000):
+        await pg.evaluate("navigator.serviceWorker.getRegistration().then(r=>r.update())")
+    await pg.wait_for_selector(".play")
+    title = await pg.title()
+    kept = await pg.evaluate("JSON.parse(localStorage.getItem('eden:tables')).f['6-7'].box")
+    await b.close()
+    srv.shutdown()
+    assert title.startswith("MAJ-TEST"), f"mise à jour non appliquée (titre : {title})"
+    assert kept == 3, "la progression a été perdue pendant la mise à jour"
+    print("  ✓ mise à jour : appliquée d'elle-même, progression conservée")
+
+
 async def main():
     OUT.mkdir(exist_ok=True)
     base = serve()
     async with async_playwright() as p:
         await catalogue(p, base)
+        await update(p)
         for name, w, h in SCREENS:
             await play_tables(p, base, name, w, h)
     print("\nTous les tests passent.")

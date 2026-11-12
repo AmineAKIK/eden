@@ -61,10 +61,12 @@ const h=new Date().getHours();
 document.getElementById('say').textContent=h<12?'Bonjour Eden ! Choisis ton appli.':h<18?'Salut Eden ! Choisis ton appli.':'Bonsoir Eden ! Choisis ton appli.';
 /* la progression reste sur l'appareil : on demande au navigateur de ne pas l'effacer */
 try{navigator.storage&&navigator.storage.persist&&navigator.storage.persist();}catch(e){}
-if('serviceWorker' in navigator)navigator.serviceWorker.register('sw.js').catch(()=>{});
 let ev=null;const ib=document.getElementById('install');
 addEventListener('beforeinstallprompt',e=>{e.preventDefault();ev=e;ib.classList.add('on');});
 ib.onclick=async()=>{if(!ev)return;ev.prompt();await ev.userChoice;ev=null;ib.classList.remove('on');};
+</script>
+<script>
+@@UPDATE@@
 </script>
 </body>
 </html>

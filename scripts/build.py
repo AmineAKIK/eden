@@ -49,6 +49,11 @@ def fonts_css() -> str:
     )
 
 
+def update_js(root: str) -> str:
+    """Script de mise à jour automatique, avec le chemin vers la racine du site."""
+    return read(SRC / "shared" / "update.js").replace("@@ROOT@@", root).strip()
+
+
 def hero_svg() -> str:
     return read(SRC / "shared" / "hector.svg").strip()
 
@@ -107,7 +112,7 @@ def build_app(meta, catalogue) -> Path:
 </script>
 <script>
 try{{navigator.storage&&navigator.storage.persist&&navigator.storage.persist();}}catch(e){{}}
-if("serviceWorker" in navigator)navigator.serviceWorker.register("{up}sw.js",{{scope:"{up}"}}).catch(()=>{{}});
+{update_js(up)}
 </script>
 </body>
 </html>
@@ -130,6 +135,7 @@ def build_catalogue(cat, apps):
         "@@FONTS@@": fonts_css(), "@@HERO@@": hero_svg(),
         "@@APPS@@": json.dumps(entries, ensure_ascii=False),
         "@@PROGRESS@@": read(d / "progress.js"),
+        "@@UPDATE@@": update_js("./"),
     }.items():
         assert k in html, f"{k} absent du gabarit du catalogue"
         html = html.replace(k, v)

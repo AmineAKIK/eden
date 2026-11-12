@@ -22,7 +22,11 @@ dist/
 
 **Le catalogue est généré.** La liste des applis vient de `src/catalogue/catalogue.json` et du `app.json` de chaque appli. La ligne de progression sous chaque appli vient de `src/catalogue/progress.js`.
 
-**Hors ligne et mises à jour.** `sw.js` met en cache tout le site. Son numéro de version est l'empreinte du contenu construit : chaque modification publiée change ce numéro, et les appareils récupèrent la nouvelle version à l'ouverture suivante. Les pages passent par le réseau d'abord (pour les mises à jour), puis par le cache si l'appareil est hors ligne.
+**Hors ligne et mises à jour.** `sw.js` met en cache tout le site. Son numéro de version est l'empreinte du contenu construit : chaque publication qui change un fichier change ce numéro.
+- Le navigateur vérifie s'il y a une nouvelle version à l'ouverture, au retour sur l'appli et toutes les 30 minutes (`src/shared/update.js`, inséré dans chaque page).
+- La nouvelle version se télécharge en contournant le cache HTTP, puis remplace l'ancienne.
+- La page se recharge d'elle-même. Dans les tables, jamais en pleine séance : le rechargement attend le retour à l'accueil.
+- Il ne faut **jamais** effacer les données du site pour mettre à jour : cela effacerait la progression. Le test `tests/e2e.py` vérifie qu'une publication s'applique seule et que la progression reste.
 
 **La progression.** Chaque appli garde son état dans `localStorage`, sous sa propre clé déclarée dans `app.json` (`eden:tables`). Le catalogue la lit pour afficher la progression. Au démarrage, on demande au navigateur de ne pas effacer ces données (`navigator.storage.persist`).
 
