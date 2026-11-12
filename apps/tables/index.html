@@ -370,7 +370,7 @@ button.prow2:active{background:#F5F7FD}
 })();
 </script>
 <script>
-const APP_VERSION='1.2.0';
+const APP_VERSION='1.2.1';
 const HERO_SVG='<svg viewBox="0 0 100 112"><defs><radialGradient id="hg" cx=".35" cy=".25" r=".95"><stop offset="0" stop-color="#FFE9A6"/><stop offset="1" stop-color="#D79A2B"/></radialGradient><radialGradient id="sg" cx=".35" cy=".3" r=".9"><stop offset="0" stop-color="#FFF0A8"/><stop offset="1" stop-color="#F2B01E"/></radialGradient></defs><g class="antenna"><path d="M26 34C28 6 72 6 74 34" stroke="#141A38" stroke-width="16" fill="none" stroke-linecap="round"/><path d="M26 34C28 6 72 6 74 34" stroke="#D52F3E" stroke-width="9" fill="none" stroke-linecap="round"/></g><ellipse cx="36" cy="106" rx="11" ry="5" fill="#141A38"/><ellipse cx="64" cy="106" rx="11" ry="5" fill="#141A38"/><path d="M30 84h40l7 20H23z" fill="#D52F3E" stroke="#141A38" stroke-width="4" stroke-linejoin="round"/><path d="M33 90h34" stroke="#FFD84D" stroke-width="4" stroke-linecap="round"/><circle cx="50" cy="58" r="31" fill="#F6C08F" stroke="#141A38" stroke-width="4"/><path d="M17 56C14 20 86 20 83 56L73 52C66 40 34 40 27 52z" fill="url(#hg)" stroke="#141A38" stroke-width="4" stroke-linejoin="round"/><path d="M50 24v14" stroke="#141A38" stroke-width="3" stroke-linecap="round"/><ellipse cx="38" cy="60" rx="9" ry="11" fill="#fff" stroke="#141A38" stroke-width="3"/><ellipse cx="62" cy="60" rx="9" ry="11" fill="#fff" stroke="#141A38" stroke-width="3"/><circle class="pup" cx="40" cy="62" r="5.2" fill="#141A38"/><circle class="pup" cx="64" cy="62" r="5.2" fill="#141A38"/><circle cx="27" cy="77" r="5" fill="#FF8FC0" opacity=".7"/><circle cx="73" cy="77" r="5" fill="#FF8FC0" opacity=".7"/><path class="mo mo-happy" d="M38 79Q50 94 62 79z" fill="#fff" stroke="#141A38" stroke-width="3" stroke-linejoin="round"/><path class="mo mo-think" d="M40 86L60 83" stroke="#141A38" stroke-width="4" fill="none" stroke-linecap="round"/><ellipse class="mo mo-wow" cx="50" cy="86" rx="6" ry="8" fill="#141A38"/><path class="mo mo-oops" d="M39 90Q50 80 61 90" stroke="#141A38" stroke-width="4" fill="none" stroke-linecap="round"/><g><circle cx="22" cy="92" r="15" fill="url(#sg)" stroke="#141A38" stroke-width="4"/><circle cx="22" cy="92" r="9" fill="none" stroke="#C98A12" stroke-width="3"/><path d="M22 85l2.2 5 5.3.5-4 3.6 1.2 5.2-4.7-2.8-4.7 2.8 1.2-5.2-4-3.6 5.3-.5z" fill="#D52F3E"/></g></svg>';
 /* ===== mots, nombres, phrases de Hector (partagés par l'appli et le générateur de voix) ===== */
 const U16=['zéro','un','deux','trois','quatre','cinq','six','sept','huit','neuf','dix','onze','douze','treize','quatorze','quinze','seize'];
@@ -1239,6 +1239,7 @@ const PI={
   trash:'<svg viewBox="0 0 24 24"><path d="M9 3h6l1 2h4v2H4V5h4zm-3 6h12l-1 12H7zm4 2v8h1.5v-8zm3.5 0v8H15v-8z"/></svg>',
   up:'<svg viewBox="0 0 24 24"><path d="M12 3l5 5-1.4 1.4L13 6.8V16h-2V6.8L8.4 9.4 7 8zM5 14h2v5h10v-5h2v7H5z"/></svg>',
   down:'<svg viewBox="0 0 24 24"><path d="M12 16l-5-5 1.4-1.4 2.6 2.6V3h2v9.2l2.6-2.6L17 11zM5 14h2v5h10v-5h2v7H5z"/></svg>',
+  info:'<svg viewBox="0 0 24 24"><path d="M12 2l8 3v6c0 5-3.4 9.4-8 11-4.6-1.6-8-6-8-11V5zm0 2.1L6 6.4V11c0 3.9 2.5 7.4 6 8.9 3.5-1.5 6-5 6-8.9V6.4zM11 8h2v2h-2zm0 3h2v6h-2z"/></svg>',
   ok:'<svg viewBox="0 0 24 24"><path d="M9.5 16.2 5.3 12l-1.4 1.4 5.6 5.6L20.1 8.4 18.7 7z"/></svg>'
 };
 const pi=(k,cls='')=>h('span',{class:'pi '+cls,'aria-hidden':'true',html:PI[k]});
@@ -1303,6 +1304,7 @@ function openPanel(){
           row('save','#7A4DD8','Sauvegarde',ST.backup?`Dernière copie ${dayWord(ST.backup)}`:'Garder une copie de la progression',()=>go('save')),
           row('book','#E07A00','Comment Hector enseigne','La méthode en 2 minutes',()=>go('how'))),
         window.EdenInstall&&EdenInstall.need?group(row('phone','#4A5280','Mettre Hector sur l’écran d’accueil','En plein écran, même sans internet',()=>EdenInstall.show())):null,
+        group(row('info','#8A93B8','Mentions légales et confidentialité','Aucune donnée collectée : tout reste sur l’appareil',()=>{tick();location.href='../../mentions-legales.html';})),
         h('p',{class:'pver'},'Hector · version '+APP_VERSION)];
     },
     /* --- ses progrès --- */
