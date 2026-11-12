@@ -2,6 +2,11 @@
 
 Format : [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/). Chaque appli a son propre numéro de version (dans son `app.json`).
 
+## 2026-11-12 (c)
+
+### Corrigé
+- Les tables 1.0.5 : la voix n'est plus « amputée ». Les 95 morceaux ont été redécoupés dans l'enregistrement d'origine, avec les fins de mots complètes (le « t » de huit, de sept…) et le souffle naturel autour. Les calculs assemblés (« six fois sept égale quarante-deux ») s'enchaînent sur la parole elle-même et non plus sur la longueur des fichiers, et tous les morceaux ont le même volume. Deux phrases mal attribuées sont corrigées (« Pas grave. Regarde. » entier, « Eden, » au début de « voici l'entraînement du jour »).
+
 ## 2026-11-12 (b)
 
 ### Corrigé

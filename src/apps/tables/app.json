@@ -3,7 +3,7 @@
   "name": "Les tables",
   "title": "Les tables d'Eden",
   "description": "Les tables de multiplication du CE2, avec Hector : une courte séance par jour.",
-  "version": "1.0.4",
+  "version": "1.0.5",
   "storageKey": "eden:tables",
   "themeColor": "#E9EDFB",
   "js": ["js/00_phrases.js", "js/10_app.js", "js/20_flow.js", "js/30_session.js", "js/99_boot.js"],

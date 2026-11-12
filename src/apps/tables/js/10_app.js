@@ -95,16 +95,25 @@ function seqOf(k){
   if(k==='tech_cut'||k==='tech_ten'||k==='tech_count')return ['nouveau',k+'_r'];
   return null;
 }
-const gapOf=(x,y)=>y==='fois'?0.02:(x==='fois'||x==='p1'||x==='p2')?0.03:0.09;
+/* silence entre deux morceaux d'une phrase assemblée, mesuré de la fin de la parole au début de la suivante
+   (chaque clip garde son attaque et sa chute naturelles : on ne coupe jamais la fin d'un mot) */
+const gapOf=(x,y)=>y==='fois'?0.04:(x==='fois'||x==='p1'||x==='p2')?0.07:0.13;
+/* début et fin de la parole dans un clip (le reste est le souffle autour du mot) */
+function speechOf(b){
+  if(b._sp)return b._sp;const d=b.getChannelData(0),w=Math.max(1,Math.round(b.sampleRate*0.01)),r=[];
+  for(let i=0;i+w<=d.length;i+=w){let q=0;for(let j=i;j<i+w;j++)q+=d[j]*d[j];r.push(Math.sqrt(q/w));}
+  const th=Math.max(...r)*0.06;let a=r.findIndex(v=>v>th),z=r.length-1;while(z>0&&r[z]<=th)z--;
+  return b._sp=[Math.max(0,a)*w/b.sampleRate,Math.min(b.duration,(z+1)*w/b.sampleRate)];
+}
 async function playKey(k){
   const tok=++vTok,ac=getAC(),seq=seqOf(k);
   if(seq&&ac){
     const bs=await Promise.all(seq.map(getBuf));if(tok!==vTok)return;
     if(bs.every(Boolean)){
       if(ac.state==='suspended'){try{await ac.resume();}catch(e){}}if(tok!==vTok)return;VMODE='voix Hector';
-      return new Promise(res=>{let t=ac.currentTime+0.03;const srcs=bs.map((b,i)=>{const s=ac.createBufferSource();s.buffer=b;s.connect(ac.destination);s.start(t);t+=b.duration+(i<bs.length-1?gapOf(seq[i],seq[i+1]):0);return s;});
+      return new Promise(res=>{let t=ac.currentTime+0.03;const srcs=bs.map((b,i)=>{const s=ac.createBufferSource();s.buffer=b;s.connect(ac.destination);s.start(t);if(i<bs.length-1){const n=bs[i+1];t=Math.max(t+speechOf(b)[1]+gapOf(seq[i],seq[i+1])-speechOf(n)[0],t+0.05);}return s;});
         curSrc={stop(){srcs.forEach(s=>{try{s.stop();}catch(e){}});}};curRes=res;
-        srcs[srcs.length-1].onended=()=>{if(curRes===res){curRes=null;curSrc=null;}res();};});
+        let left=srcs.length;srcs.forEach(x=>x.onended=()=>{if(--left)return;if(curRes===res){curRes=null;curSrc=null;}res();});});
     }
   }
   /* jamais de voix robot : si un clip manque, on laisse juste le temps de lire */

@@ -14,7 +14,7 @@ Un fichier mp3 par morceau dans `src/apps/tables/voice/`, nommé par sa clé :
 
 ## Comment les calculs sont dits
 
-`seqOf(clé)` dans `js/10_app.js` transforme une clé en suite de morceaux, joués bout à bout :
+`seqOf(clé)` dans `js/10_app.js` transforme une clé en suite de morceaux. Chaque morceau garde un peu de silence et la chute naturelle du mot (le « t » de huit, la fin de « sept ») : `playKey` repère dans chaque clip où la parole commence et finit (`speechOf`) et place le morceau suivant à partir de la fin de la parole du précédent, avec un petit écart (`gapOf` : 0,04 s avant « fois », 0,07 s après, 0,13 s ailleurs). Les chutes peuvent se chevaucher, les mots ne sont jamais coupés.
 
 | Clé | Morceaux | Entendu |
 | --- | --- | --- |
@@ -28,7 +28,8 @@ Un fichier mp3 par morceau dans `src/apps/tables/voice/`, nommé par sa clé :
 ## Changer ou ajouter une phrase
 
 1. Modifier le texte dans `js/00_phrases.js`.
-2. Générer la phrase avec la même voix et l'enregistrer en mp3 (mono, 44,1 kHz, environ 48 kbit/s) sous `voice/<clé>.mp3`. Couper les silences au début et à la fin.
+2. Générer la phrase avec la même voix et l'enregistrer en mp3 (mono, 44,1 kHz, environ 48 kbit/s) sous `voice/<clé>.mp3`.
+   Découpe : repérer la parole avec un seuil bas (−55 dB, sinon les consonnes finales disparaissent), puis garder une marge : jusqu'à 0,12 s avant et 0,35 s après (sans dépasser la moitié du silence voisin), fondu de 12 ms à l'entrée et fondu doux à la sortie. Ne jamais rogner au ras du mot. Les morceaux de calcul sont mis au même volume que les phrases.
 3. `python3 scripts/build.py && python3 scripts/check.py`.
 
 Amélioration possible : générer « trois fois », « quatre fois »… d'un seul tenant (une phrase par ligne, avec des points), pour un rythme plus naturel que le collage « trois » + « fois ».
