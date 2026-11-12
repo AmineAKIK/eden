@@ -149,6 +149,9 @@ def build_catalogue(cat, apps):
         assert k in html, f"{k} absent du gabarit du catalogue"
         html = html.replace(k, v)
     (DIST / "index.html").write_text(html, encoding="utf-8")
+    legal = read(d / "mentions-legales.html").replace("@@FONTS@@", fonts_css())
+    assert "@@" not in legal
+    (DIST / "mentions-legales.html").write_text(legal, encoding="utf-8")
     shutil.copytree(d / "icons", DIST / "icons", dirs_exist_ok=True,
                     ignore=shutil.ignore_patterns("*.svg"))
 

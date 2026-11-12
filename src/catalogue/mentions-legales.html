@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Mentions légales et confidentialité</title>
+<meta name="theme-color" content="#F2F4FA">
+<meta name="robots" content="noindex">
+<link rel="icon" href="icons/eden-192.png">
+<style>
+@@FONTS@@
+:root{--ink:#141A38;--ink2:#4A5280;--bic:#2640C9;--line:#E3E7F4}
+*{box-sizing:border-box}
+html,body{margin:0;background:#F2F4FA;color:var(--ink);font:16px/1.55 'Hanken',system-ui,sans-serif;-webkit-text-size-adjust:100%}
+main{max-width:640px;margin:0 auto;padding:calc(10px + env(safe-area-inset-top)) 16px calc(32px + env(safe-area-inset-bottom))}
+.top{display:flex;align-items:center;gap:8px;min-height:56px}
+.back{display:inline-flex;align-items:center;gap:4px;padding:10px 14px 10px 8px;border-radius:999px;background:#fff;color:var(--ink);text-decoration:none;font-weight:600;box-shadow:0 1px 2px #141A3814}
+.back svg{width:20px;height:20px;fill:currentColor}
+h1{font:400 30px/1.15 'Fredoka',sans-serif;color:var(--bic);margin:14px 4px 18px}
+section{background:#fff;border-radius:20px;padding:16px 18px;margin-top:12px;box-shadow:0 1px 2px #141A3810}
+h2{font:600 17px/1.3 'Hanken',sans-serif;margin:0 0 8px}
+p{margin:6px 0}
+address{font-style:normal}
+a{color:var(--bic)}
+.k{color:var(--ink2)}
+.upd{text-align:center;color:var(--ink2);font-size:14px;margin-top:20px}
+</style>
+</head>
+<body>
+<main>
+  <div class="top"><a class="back" href="./" id="back"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15.4 5.4 14 4l-8 8 8 8 1.4-1.4L8.8 12z"/></svg>Retour</a></div>
+  <h1>Mentions légales et confidentialité</h1>
+
+  <section>
+    <h2>Éditeur</h2>
+    <address>
+      <p>Mohamed Amine Akik, entrepreneur individuel, nom commercial AkikSystems<br>
+      10 rue de Madame, 86100 Châtellerault<br>
+      <span class="k">Téléphone :</span> <a href="tel:+33668539871">06 68 53 98 71</a><br>
+      <span class="k">Courriel :</span> <a href="mailto:contact@akiksystems.com">contact@akiksystems.com</a><br>
+      <span class="k">RCS</span> Poitiers 106 993 181</p>
+      <p><span class="k">Directeur de la publication :</span> Mohamed Amine Akik</p>
+    </address>
+  </section>
+
+  <section>
+    <h2>Hébergeur</h2>
+    <p>GitHub, Inc.<br>88 Colin P. Kelly Jr. Street, San Francisco, CA 94107, États-Unis<br>
+    <span class="k">Téléphone :</span> +1 877 448 4820</p>
+  </section>
+
+  <section>
+    <h2>Données personnelles</h2>
+    <p>Hector ne demande aucune information personnelle et ne crée aucun compte.</p>
+    <p>La progression de l’enfant (calculs réussis, séances, réglages) est enregistrée uniquement sur l’appareil, dans la mémoire du navigateur, pour que l’application fonctionne. Elle n’est transmise ni à l’éditeur ni à quiconque. Aucun cookie, aucune mesure d’audience, aucune publicité.</p>
+    <p>Pour l’effacer : Espace parents, Réglages, « Effacer la progression », ou en supprimant les données du site dans les réglages du navigateur.</p>
+    <p>Comme tout hébergeur, GitHub peut enregistrer l’adresse IP des visiteurs dans ses journaux techniques, à des fins de sécurité, selon sa propre politique de confidentialité.</p>
+    <p>Pour toute question : <a href="mailto:contact@akiksystems.com">contact@akiksystems.com</a>.</p>
+  </section>
+
+  <section>
+    <h2>Propriété intellectuelle</h2>
+    <p>Le personnage d’Hector, les textes, les illustrations et le code sont la propriété de l’éditeur. Toute reproduction sans autorisation est interdite.</p>
+    <p class="k">Polices Fredoka et Hanken Grotesk sous licence SIL Open Font License 1.1. Voix créée avec ElevenLabs, sous licence commerciale.</p>
+  </section>
+
+  <p class="upd">Dernière mise à jour : 12 novembre 2026</p>
+</main>
+<script>
+/* « Retour » revient là d'où l'on vient (appli ou catalogue) */
+document.getElementById('back').addEventListener('click',function(e){if(history.length>1&&document.referrer.indexOf(location.host)>-1){e.preventDefault();history.back();}});
+</script>
+</body>
+</html>

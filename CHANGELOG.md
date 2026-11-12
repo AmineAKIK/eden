@@ -2,6 +2,11 @@
 
 Format : [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/). Chaque appli a son propre numéro de version (dans son `app.json`).
 
+## 2026-11-12 (f)
+
+### Ajouté
+- Page « Mentions légales et confidentialité » (`mentions-legales.html`) : éditeur, hébergeur, données personnelles (rien n'est collecté, tout reste sur l'appareil), propriété intellectuelle et crédits. Accessible depuis le bas du catalogue et depuis l'espace parents (Les tables 1.2.1), disponible hors ligne.
+
 ## 2026-11-12 (e)
 
 ### Ajouté

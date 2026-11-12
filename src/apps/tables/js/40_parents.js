@@ -54,6 +54,7 @@ const PI={
   trash:'<svg viewBox="0 0 24 24"><path d="M9 3h6l1 2h4v2H4V5h4zm-3 6h12l-1 12H7zm4 2v8h1.5v-8zm3.5 0v8H15v-8z"/></svg>',
   up:'<svg viewBox="0 0 24 24"><path d="M12 3l5 5-1.4 1.4L13 6.8V16h-2V6.8L8.4 9.4 7 8zM5 14h2v5h10v-5h2v7H5z"/></svg>',
   down:'<svg viewBox="0 0 24 24"><path d="M12 16l-5-5 1.4-1.4 2.6 2.6V3h2v9.2l2.6-2.6L17 11zM5 14h2v5h10v-5h2v7H5z"/></svg>',
+  info:'<svg viewBox="0 0 24 24"><path d="M12 2l8 3v6c0 5-3.4 9.4-8 11-4.6-1.6-8-6-8-11V5zm0 2.1L6 6.4V11c0 3.9 2.5 7.4 6 8.9 3.5-1.5 6-5 6-8.9V6.4zM11 8h2v2h-2zm0 3h2v6h-2z"/></svg>',
   ok:'<svg viewBox="0 0 24 24"><path d="M9.5 16.2 5.3 12l-1.4 1.4 5.6 5.6L20.1 8.4 18.7 7z"/></svg>'
 };
 const pi=(k,cls='')=>h('span',{class:'pi '+cls,'aria-hidden':'true',html:PI[k]});
@@ -118,6 +119,7 @@ function openPanel(){
           row('save','#7A4DD8','Sauvegarde',ST.backup?`Dernière copie ${dayWord(ST.backup)}`:'Garder une copie de la progression',()=>go('save')),
           row('book','#E07A00','Comment Hector enseigne','La méthode en 2 minutes',()=>go('how'))),
         window.EdenInstall&&EdenInstall.need?group(row('phone','#4A5280','Mettre Hector sur l’écran d’accueil','En plein écran, même sans internet',()=>EdenInstall.show())):null,
+        group(row('info','#8A93B8','Mentions légales et confidentialité','Aucune donnée collectée : tout reste sur l’appareil',()=>{tick();location.href='../../mentions-legales.html';})),
         h('p',{class:'pver'},'Hector · version '+APP_VERSION)];
     },
     /* --- ses progrès --- */
