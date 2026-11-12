@@ -451,6 +451,8 @@ function hintView(a0,b0,anim,disp){
 
 /* ---------- accueil ---------- */
 function showHome(){
+  /* une mise à jour attendait un moment calme : on l'applique en revenant à l'accueil */
+  if(window.__updatePending){location.reload();return;}
   const doneToday=ST.log.some(l=>l.d===today());
   const m=mastered();
   const hero=makeHero();
@@ -556,6 +558,9 @@ function boot(){
   let app=document.getElementById('app');if(!app){app=h('div',{id:'app'});document.body.append(app);}
   app.replaceChildren();ROOT=app;showHome();
 }
+
+/* mise à jour : on ne recharge pas en pleine séance, seulement depuis l'accueil */
+window.__safeToReload=()=>!!document.querySelector('.screen.home .play');
 
 
 /* ============ fil pédagogique : chapitres, techniques, gestes ============ */
@@ -930,7 +935,29 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
 </script>
 <script>
 try{navigator.storage&&navigator.storage.persist&&navigator.storage.persist();}catch(e){}
-if("serviceWorker" in navigator)navigator.serviceWorker.register("../../sw.js",{scope:"../../"}).catch(()=>{});
+/* Mises à jour automatiques (inséré dans chaque page par scripts/build.py).
+   - Vérifie s'il existe une nouvelle version à l'ouverture, au retour sur l'appli,
+     et toutes les 30 minutes.
+   - Quand la nouvelle version est prête, la page se recharge d'elle-même.
+     Une appli peut demander d'attendre un moment calme : si elle définit
+     window.__safeToReload() et que la fonction renvoie false (en pleine séance),
+     le rechargement est remis au prochain retour à l'accueil (window.__updatePending).
+   - La progression (localStorage) n'est jamais effacée. */
+(function(){
+  if(!('serviceWorker' in navigator))return;
+  var ROOT='../../';
+  var hadController=!!navigator.serviceWorker.controller;
+  navigator.serviceWorker.register(ROOT+'sw.js',{scope:ROOT,updateViaCache:'none'}).then(function(reg){
+    var check=function(){reg.update().catch(function(){});};
+    document.addEventListener('visibilitychange',function(){if(document.visibilityState==='visible')check();});
+    setInterval(check,30*60*1000);
+  }).catch(function(){});
+  navigator.serviceWorker.addEventListener('controllerchange',function(){
+    if(!hadController){hadController=true;return;}   /* toute première installation : rien à recharger */
+    if(window.__safeToReload&&!window.__safeToReload()){window.__updatePending=true;return;}
+    location.reload();
+  });
+})();
 </script>
 </body>
 </html>
