@@ -241,7 +241,7 @@ function openPanel(){
   const p=h('div',{class:'panel'});
   const draw=()=>{
     const weak=FACTS.filter(id=>known(id)&&ST.f[id].box<=1&&ST.f[id].ko>0).map(id=>ab(id).join(' × '));
-    p.replaceChildren(
+    p.replaceChildren(...[
       h('h2',{},'Espace parents'),
       h('p',{},`${mastered()} calculs sus sur 36 (a × b et b × a comptent pour un seul). ${ST.log.length} séance${ST.log.length>1?'s':''} jouée${ST.log.length>1?'s':''}.`),
       weak.length?h('p',{},'À retravailler : '+weak.join(', ')+'.'):null,
@@ -257,7 +257,7 @@ function openPanel(){
       h('button',{class:'btn',onclick:()=>{ST.voice=!ST.voice;save();draw();}},ST.voice?'Voix de Hector : activée':'Voix de Hector : coupée'),
       h('button',{class:'btn',onclick:()=>{if(confirm('Tout effacer et recommencer ?')){ST={voice:ST.voice,intro:false,chap:0,t:{cut:0,ten:0},pre:{},placed:false,hardIdx:0,f:{},log:[]};save();p.remove();showHome();}}},'Recommencer à zéro'),
       h('p',{style:'opacity:.6;font-size:14px'},'Version '+APP_VERSION+' · voix : '+VMODE),
-      h('div',{style:'margin-top:16px'},h('button',{class:'btn',style:'background:#2640C9;color:#fff',onclick:()=>p.remove()},'Fermer')));
+      h('div',{style:'margin-top:16px'},h('button',{class:'btn',style:'background:#2640C9;color:#fff',onclick:()=>p.remove()},'Fermer'))].filter(Boolean));
   };
   draw();ROOT.append(p);
 }

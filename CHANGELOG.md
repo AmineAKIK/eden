@@ -2,6 +2,11 @@
 
 Format : [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/). Chaque appli a son propre numéro de version (dans son `app.json`).
 
+## 2026-11-12 (b)
+
+### Corrigé
+- Les tables 1.0.1 : l'espace parents affichait le mot « null » ; la bulle de l'écran de fin occupait tout l'espace libre.
+
 ## 2026-11-12
 
 ### Ajouté

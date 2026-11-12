@@ -74,6 +74,7 @@ button{font:inherit;color:inherit;border:0;background:none;padding:0;cursor:poin
 /* fin / grille */
 .end{align-items:center;justify-content:center;gap:14px;padding:20px;text-align:center}
 .end .hero{width:130px}
+.end .bubble{flex:none;align-self:stretch;justify-content:center}
 .end h2{margin:0;font-family:'Fredoka',sans-serif;font-weight:400;font-size:40px;color:var(--bic)}
 .chips{display:flex;gap:8px;flex-wrap:wrap;justify-content:center}
 .chip{font-family:'Fredoka',sans-serif;font-size:22px;padding:6px 14px;border-radius:999px;background:#fff;border:2px solid var(--line)}
