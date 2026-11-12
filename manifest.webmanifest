@@ -1,0 +1,54 @@
+{
+  "id": "./",
+  "name": "Les applis d'Eden",
+  "short_name": "Eden",
+  "description": "Toutes les applications d'Eden, au même endroit.",
+  "lang": "fr",
+  "dir": "ltr",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#2640C9",
+  "theme_color": "#2640C9",
+  "icons": [
+    {
+      "src": "icons/eden-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "icons/eden-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "icons/eden-mask-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "maskable"
+    },
+    {
+      "src": "icons/eden-mask-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Les tables d'Eden",
+      "short_name": "Les tables",
+      "url": "apps/tables/",
+      "icons": [
+        {
+          "src": "apps/tables/icons/tables-192.png",
+          "sizes": "192x192",
+          "type": "image/png"
+        }
+      ]
+    }
+  ]
+}
