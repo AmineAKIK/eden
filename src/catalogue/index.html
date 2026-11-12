@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>@@NAME@@</title>
+<meta name="description" content="@@DESCRIPTION@@">
+<meta name="theme-color" content="@@THEME@@">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icons/eden-64.png">
+<link rel="apple-touch-icon" href="icons/eden-180.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Eden">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<style>
+@@FONTS@@
+:root{--ink:#141A38;--blue:#2640C9;--gold:#F2B01E}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;min-height:100%;background:#1B2E9E;color:#fff;font-family:'Hanken',system-ui,sans-serif;color-scheme:dark}
+body{background:radial-gradient(120% 70% at 50% 0%,#4A67FF 0%,#2640C9 45%,#16237A 100%) fixed;min-height:100vh;min-height:100dvh}
+main{max-width:640px;margin:0 auto;padding:calc(18px + env(safe-area-inset-top)) 18px calc(28px + env(safe-area-inset-bottom))}
+.hi{display:flex;align-items:flex-end;gap:12px;margin-top:6px}
+.hi .hero{width:86px;flex:none}
+.hi .hero svg{width:100%;height:auto;display:block;overflow:visible}
+.hero .mo{display:none}.hero .mo-happy{display:block}
+.hero .antenna{transform-origin:50px 18px;animation:sway 3s ease-in-out infinite}
+@keyframes sway{0%,100%{transform:rotate(-6deg)}50%{transform:rotate(6deg)}}
+.say{background:#fff;color:var(--ink);border-radius:22px 22px 22px 6px;padding:12px 16px;font-size:19px;line-height:1.25;box-shadow:0 4px 0 #0E1A66}
+h1{font-family:'Fredoka',sans-serif;font-weight:400;font-size:clamp(36px,11vw,52px);line-height:1;margin:26px 0 22px;letter-spacing:.5px}
+h1 b{color:var(--gold);font-weight:400}
+.apps{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:18px}
+.app{display:flex;flex-direction:column;align-items:center;gap:10px;padding:16px 10px 18px;border-radius:26px;background:rgba(255,255,255,.1);border:2px solid rgba(255,255,255,.18);color:#fff;text-decoration:none;transition:transform .12s}
+.app:active{transform:scale(.96)}
+.app img{width:min(30vw,112px);height:min(30vw,112px);border-radius:24%;box-shadow:0 8px 0 rgba(10,18,70,.55),0 14px 24px rgba(0,0,0,.25)}
+.app .n{font-family:'Fredoka',sans-serif;font-size:22px;text-align:center;line-height:1.1}
+.app .p{font-size:14px;opacity:.85;text-align:center;min-height:18px}
+.app.soon{opacity:.45;pointer-events:none}
+.install{display:none;margin:26px auto 0;padding:12px 20px;border-radius:999px;border:2px solid rgba(255,255,255,.4);background:none;color:#fff;font:600 16px 'Hanken',sans-serif}
+.install.on{display:block}
+@media (prefers-reduced-motion:reduce){.hero .antenna{animation:none}}
+</style>
+</head>
+<body>
+<main>
+  <div class="hi"><div class="hero" aria-hidden="true">@@HERO@@</div><div class="say" id="say">Salut Eden !</div></div>
+  <h1>Les applis<br><b>d’Eden</b></h1>
+  <nav class="apps" id="apps"></nav>
+  <button class="install" id="install">Installer sur cet appareil</button>
+</main>
+<script>
+/* applications du catalogue : générées depuis le fichier app.json de chaque appli */
+const APPS=@@APPS@@;
+/* progression affichée sous chaque appli : src/catalogue/progress.js */
+@@PROGRESS@@
+const box=document.getElementById('apps');
+APPS.forEach(a=>{const el=document.createElement('a');el.className='app';el.href=a.path;
+  el.innerHTML=`<img src="${a.icon}" alt="" width="112" height="112"><span class="n">${a.name}</span><span class="p"></span>`;
+  let p='';try{const raw=localStorage.getItem(a.storageKey);p=PROGRESS[a.id]?PROGRESS[a.id](raw?JSON.parse(raw):null):'';}catch(e){}el.querySelector('.p').textContent=p;box.append(el);});
+const h=new Date().getHours();
+document.getElementById('say').textContent=h<12?'Bonjour Eden ! Choisis ton appli.':h<18?'Salut Eden ! Choisis ton appli.':'Bonsoir Eden ! Choisis ton appli.';
+/* la progression reste sur l'appareil : on demande au navigateur de ne pas l'effacer */
+try{navigator.storage&&navigator.storage.persist&&navigator.storage.persist();}catch(e){}
+if('serviceWorker' in navigator)navigator.serviceWorker.register('sw.js').catch(()=>{});
+let ev=null;const ib=document.getElementById('install');
+addEventListener('beforeinstallprompt',e=>{e.preventDefault();ev=e;ib.classList.add('on');});
+ib.onclick=async()=>{if(!ev)return;ev.prompt();await ev.userChoice;ev=null;ib.classList.remove('on');};
+</script>
+</body>
+</html>

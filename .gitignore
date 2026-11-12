@@ -1,0 +1,7 @@
+# construit par scripts/build.py, publié par GitHub Actions
+dist/
+# sorties des tests
+tests/out/
+__pycache__/
+*.pyc
+.DS_Store

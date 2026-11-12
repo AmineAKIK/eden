@@ -1,0 +1,8 @@
+{
+  "name": "Les applis d'Eden",
+  "shortName": "Eden",
+  "description": "Toutes les applications d'Eden, au même endroit.",
+  "themeColor": "#2640C9",
+  "backgroundColor": "#2640C9",
+  "apps": ["tables"]
+}
