@@ -178,12 +178,126 @@ async def extras(p, base, name, w, h):
     return dict(name=name + " (hors séance)", size=f"{w}×{h}", screens=7, ended=True, errors=errs, problems=problems)
 
 
+# ---------------- Plus et moins (grande section) ----------------
+CHECK_PM = r"""(()=>{
+  const out=[],vis=e=>e&&e.offsetParent!==null&&getComputedStyle(e).visibility!=='hidden';
+  const R=e=>e.getBoundingClientRect(),H=innerHeight,W=innerWidth;
+  const inter=(a,b)=>Math.max(0,Math.min(a.right,b.right)-Math.max(a.left,b.left))*Math.max(0,Math.min(a.bottom,b.bottom)-Math.max(a.top,b.top));
+  const strip=document.querySelector('.strip'),tr=document.querySelector('.talkrow'),work=document.querySelector('.screen>.work');
+  const sr=strip?R(strip):null,trr=tr?R(tr):null,wr=work?R(work):null;
+  document.querySelectorAll('.nb').forEach(b=>{const r=R(b);if(r.top<-1||r.bottom>H+1||r.left<-1||r.right>W+1)out.push('nombre '+b.textContent+' hors écran');
+    if(r.height<40||r.width<40)out.push('nombre '+b.textContent+' trop petit à toucher ('+Math.round(r.width)+'×'+Math.round(r.height)+')');});
+  if(sr&&trr&&inter(sr,trr)>4)out.push('bulle sur la bande des nombres');
+  const sc=document.querySelector('.scene');
+  if(sc&&wr){const r=R(sc);if(r.top<wr.top-1||r.bottom>wr.bottom+1)out.push('scène coupée');if(sr&&inter(r,sr)>4)out.push('scène sous la bande des nombres');}
+  document.querySelectorAll('.scene .coin').forEach(g=>{const r=R(g);if(!r.width)return;
+    if(r.top<0||r.bottom>H||r.left<0||r.right>W)out.push('pièce hors écran');
+    if(g.classList.contains('tap')){if(r.width<38)out.push('pièce à toucher trop petite ('+Math.round(r.width)+' px)');
+      const t=document.elementFromPoint(r.left+r.width/2,r.top+r.height/2);if(t&&!g.contains(t))out.push('pièce à toucher recouverte par .'+(t.getAttribute('class')||t.tagName));}});
+  const b=document.querySelector('.bubble');if(vis(b)&&b.textContent){const rg=document.createRange();rg.selectNodeContents(b);const q=rg.getBoundingClientRect(),br=R(b);
+    if(q.top<br.top-1||q.bottom>br.bottom+1)out.push('texte de bulle coupé');if(parseFloat(getComputedStyle(b).fontSize)<14)out.push('texte de bulle trop petit');}
+  return out;})()"""
+
+
+async def run_pm(p, base, name, w, h, shots):
+    """Plus et moins : trois parties complètes (test de départ puis deux parties), avec des erreurs volontaires."""
+    d = OUT / ("pm-" + name)
+    d.mkdir(parents=True, exist_ok=True)
+    for f in d.glob("*.png"): f.unlink()
+    b = await p.chromium.launch()
+    ctx = await b.new_context(viewport={"width": w, "height": h}, device_scale_factor=1, is_mobile=True, has_touch=True)
+    pg = await ctx.new_page()
+    errs, problems = [], {}
+    pg.on("pageerror", lambda e: errs.append(str(e)))
+    pg.on("console", lambda m: errs.append(m.text) if m.type == "error" else None)
+    await pg.goto(base + "apps/calculs/")
+    await pg.evaluate("__T.fast()")
+    ev = pg.evaluate
+    seen, n, ends, wrong, k = set(), 0, 0, 0, 0
+    async def snap(tag):
+        nonlocal n
+        await pg.wait_for_timeout(350)
+        pb = await ev(CHECK_PM)
+        n += 1
+        if shots or pb: await pg.screenshot(path=d / f"{n:03d}.png")
+        if pb: problems[f"{n:03d} {tag}"] = sorted(set(pb))
+    for _ in range(6000):
+        await pg.wait_for_timeout(20)
+        if await ev("!!document.querySelector('.end')"):
+            ends += 1
+            await snap("fin")
+            if ends >= 3: break
+            await ev("document.querySelector('.end .big').click()"); continue
+        if await ev("!!document.querySelector('.home .play')"):
+            await ev("document.querySelector('.home .play').click()"); continue
+        sig = await ev("""(document.querySelector('.bubble')||{}).textContent+'|'+document.querySelectorAll('.coin.tap').length+'|'+!!document.querySelector('.strip.on')+'|'+document.querySelectorAll('.scene .coin').length""")
+        if sig not in seen:
+            seen.add(sig); await snap(sig[:40])
+        if await ev("!!document.querySelector('.coin.tap')"):
+            await ev("document.querySelector('.coin.tap').dispatchEvent(new MouseEvent('click',{bubbles:true}))"); continue
+        if await ev("!!document.querySelector('.strip.on')"):
+            a = (await ev("__T.parse(window.__CUR)"))["ans"]
+            k += 1
+            if k % 4 == 2 and wrong < 8:
+                wrong += 1; a = a + 1 if a < 10 else a - 1
+            await ev(f"document.querySelectorAll('.nb')[{a}].click()"); continue
+    st = await ev("JSON.stringify({placed:__T.ST.placed,log:__T.ST.log.length,gold:__T.ST.gold,t:__T.ST.t})")
+    await b.close()
+    return dict(name="plus et moins " + name, size=f"{w}×{h}", screens=n, ended=ends >= 3, errors=errs, problems=problems, state=st)
+
+
+DEMO_PM = {"intro": True, "placed": True, "voice": True, "gold": 37, "t": {"keep": 1, "back": 1, "dbl": 1},
+           "f": {**{f"a{a}+1": {"box": 4, "due": 99999, "ok": 3, "ko": 0} for a in range(1, 10)},
+                 "s5-1": {"box": 3, "due": 99999, "ok": 3, "ko": 0}, "s4-1": {"box": 2, "due": 0, "ok": 2, "ko": 1},
+                 "a3+2": {"box": 1, "due": 0, "ok": 1, "ko": 2}, "s6-2": {"box": 1, "due": 0, "ok": 0, "ko": 1}},
+           "log": []}
+
+
+async def extras_pm(p, base, name, w, h):
+    """Plus et moins hors partie : accueil, trésor, espace parents, fin, téléphone tourné."""
+    d = OUT / ("pm-" + name)
+    d.mkdir(parents=True, exist_ok=True)
+    b = await p.chromium.launch()
+    ctx = await b.new_context(viewport={"width": w, "height": h}, device_scale_factor=1, is_mobile=True, has_touch=True, user_agent=IPHONE_UA)
+    pg = await ctx.new_page()
+    errs, problems = [], {}
+    pg.on("pageerror", lambda e: errs.append(str(e)))
+    await pg.goto(base + "apps/calculs/")
+    await pg.evaluate("s=>{const t=Math.floor((Date.now()-new Date().getTimezoneOffset()*60000)/86400000);s.log=[{d:t-5,n:8,ok:5,m:4,g:5},{d:t-3,n:8,ok:6,m:7,g:6},{d:t,n:8,ok:7,m:10,g:7}];localStorage.setItem('eden:calculs',JSON.stringify(s))}", DEMO_PM)
+    await pg.reload()
+    await pg.wait_for_selector(".play")
+    await pg.evaluate("__T.fast()")
+    async def shot(tag, check=True):
+        await pg.wait_for_timeout(450)
+        pb = ((await pg.evaluate(CHECK_PM)) if check else []) + (await pg.evaluate(WIDE))
+        await pg.screenshot(path=d / f"x-{tag}.png")
+        if pb: problems[tag] = sorted(set(pb))
+    await shot("accueil")
+    await pg.click(".pill"); await shot("tresor")
+    await pg.evaluate("showHome()"); await pg.evaluate("openPanel()"); await shot("parents", False)
+    rowjs = "t=>[...document.querySelectorAll('.panel .prow2')].find(r=>r.textContent.includes(t)).click()"
+    for t, tag in [("Ses progrès", "parents-progres"), ("Réglages", "parents-reglages"), ("Sauvegarde", "parents-sauvegarde"), ("Comment Hector", "parents-methode")]:
+        if tag != "parents-progres": await pg.evaluate("document.querySelector('.panel .pnav').click()")
+        await pg.evaluate(rowjs, t); await shot(tag, False)
+    await pg.evaluate("showHome()"); await pg.evaluate("endScreen(4)"); await shot("fin")
+    await pg.set_viewport_size({"width": h, "height": w}); await shot("tourne", False)
+    if await pg.evaluate("getComputedStyle(document.querySelector('.turnmsg')).display") == "none":
+        problems["tourne"] = ["téléphone tourné : pas de message"]
+    await b.close()
+    return dict(name="plus et moins " + name + " (hors partie)", size=f"{w}×{h}", screens=9, ended=True, errors=errs, problems=problems)
+
+
 async def main():
     shots = "--shots" in sys.argv
     base = serve()
     async with async_playwright() as p:
-        res = await asyncio.gather(*[run(p, base, *s, shots) for s in SCREENS],
-                                   *[extras(p, base, *s) for s in SCREENS if s[0].startswith("iphone")])
+        only = next((a.split("=")[1] for a in sys.argv if a.startswith("--app=")), None)
+        jobs = []
+        if only in (None, "tables"):
+            jobs += [run(p, base, *s, shots) for s in SCREENS] + [extras(p, base, *s) for s in SCREENS if s[0].startswith("iphone")]
+        if only in (None, "calculs"):
+            jobs += [run_pm(p, base, *s, shots) for s in SCREENS] + [extras_pm(p, base, *s) for s in SCREENS if s[0].startswith("iphone")]
+        res = await asyncio.gather(*jobs)
     bad = 0
     for r in res:
         k = len(r["problems"]) + len(r["errors"]) + (0 if r["ended"] else 1)

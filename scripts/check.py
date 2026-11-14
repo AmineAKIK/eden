@@ -90,6 +90,26 @@ console.log(JSON.stringify(res));""" % json.dumps(sorted(used)))
         ok(f"tables : {len(used)} phrases utilisées, toutes avec voix ({len(clips)} clips)")
 
 
+def check_voice_calculs():
+    """Plus et moins : une clé = un clip. Chaque phrase de V a son mp3, chaque clé écrite dans le code existe."""
+    d = SRC / "apps" / "calculs"
+    if not d.exists():
+        return
+    phrases = (d / "js" / "00_phrases.js").read_text(encoding="utf-8")
+    keys = json.loads(node(phrases + "\nconsole.log(JSON.stringify(Object.keys(V)));"))
+    clips = {p.stem for p in (d / "voice").glob("*.mp3")}
+    code = "\n".join(p.read_text(encoding="utf-8") for p in sorted((d / "js").glob("*.js")) if p.name != "00_phrases.js")
+    lit = set(re.findall(r"\b(?:say|sy)\((?:P,)?'([a-z0-9_]+)'", code)) | set(re.findall(r"'((?:d|t|ok|nm|tr|c)_[a-z0-9_]+|ok[1-5])'", code))
+    undef = sorted(k for k in lit if k not in keys and not k.endswith("_"))
+    nosound = [k for k in keys if k not in clips]
+    if undef:
+        fail("plus et moins : phrases utilisées mais absentes de V : " + ", ".join(undef))
+    if nosound:
+        fail(f"plus et moins : {len(nosound)} phrases sans voix (" + ", ".join(nosound[:6]) + ("…" if len(nosound) > 6 else "") + ")")
+    if not undef and not nosound:
+        ok(f"plus et moins : {len(keys)} phrases, toutes avec voix")
+
+
 def check_site():
     m = json.loads((DIST / "manifest.webmanifest").read_text(encoding="utf-8"))
     for ic in m["icons"] + [i for s in m.get("shortcuts", []) for i in s["icons"]]:
@@ -120,6 +140,7 @@ def main():
         sys.exit("dist/ absent : lancer d'abord scripts/build.py")
     check_syntax()
     check_voice_tables()
+    check_voice_calculs()
     check_site()
     if errors:
         print(f"\n{len(errors)} problème(s).")

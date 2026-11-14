@@ -209,6 +209,19 @@ async def backup(p, base):
     print("  ✓ sauvegarde : une copie enregistrée puis reprise restaure la progression, un fichier abîmé est refusé")
 
 
+async def backup_pm(p, base):
+    """Plus et moins : sa copie se reprend, et une copie des tables est refusée (autre appli)."""
+    b = await p.chromium.launch()
+    pg = await (await b.new_context()).new_page()
+    await pg.goto(base + "apps/calculs/")
+    await pg.wait_for_selector(".play")
+    r = await pg.evaluate("""(()=>{ST.f={'a3+2':{box:3,due:5,ok:4,ko:1}};ST.log=[{d:1,n:8,ok:6,m:1}];save();
+      const c=exportCode();return [c.startsWith('PLUSMOINS1:'),importCode(c).f['a3+2'].box,importCode('HECTOR1:eyJmIjp7fSwibG9nIjpbXX0=')]})()""")
+    await b.close()
+    assert r == [True, 3, None], f"sauvegarde plus et moins : {r}"
+    print("  ✓ plus et moins : la copie se reprend, une copie d'une autre appli est refusée")
+
+
 async def main():
     OUT.mkdir(exist_ok=True)
     base = serve()
@@ -216,6 +229,7 @@ async def main():
         await catalogue(p, base)
         await update(p)
         await backup(p, base)
+        await backup_pm(p, base)
         for name, w, h in SCREENS:
             await play_tables(p, base, name, w, h)
     # affichage sur les tailles d'écran réelles (tests/audit.py)

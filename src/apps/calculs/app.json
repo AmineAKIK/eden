@@ -1,0 +1,23 @@
+{
+  "id": "calculs",
+  "name": "Plus et moins",
+  "title": "Plus et moins de Milo",
+  "description": "Ajouter et enlever jusqu'à 10, en grande section, avec Hector : une courte partie par jour.",
+  "version": "1.0.0",
+  "storageKey": "eden:calculs",
+  "themeColor": "#E9EDFB",
+  "ownManifest": true,
+  "js": [
+    "js/00_phrases.js",
+    "js/10_core.js",
+    "js/20_scene.js",
+    "js/30_play.js",
+    "js/40_session.js",
+    "js/50_parents.js",
+    "js/99_boot.js"
+  ],
+  "css": [
+    "style.css"
+  ],
+  "voice": "voice"
+}

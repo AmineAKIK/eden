@@ -7,6 +7,7 @@ Les applications d'apprentissage d'Eden, réunies dans une seule application web
 | Appli | Pour qui | Ce qu'elle fait |
 | --- | --- | --- |
 | [Les tables](https://amineakik.github.io/eden/apps/tables/) | CE2 | Tables de multiplication avec Hector : une séance de 5 à 7 minutes par jour, techniques montrées avec des gestes, répétition espacée. |
+| [Plus et moins](https://amineakik.github.io/eden/apps/calculs/) | Grande section | Ajouter et enlever jusqu'à 10 avec le coffre d'Hector : surcompter, décompter, les doubles, le coffre mystère. Tout est dit à voix haute. |
 
 ## Installer sur un appareil
 
@@ -41,6 +42,7 @@ src/
   catalogue/        page d'accueil, liste des applis, service worker, icônes
   shared/           ce qui sert à toutes les applis : polices, Hector (SVG)
   apps/tables/      Les tables : code (js/), styles, voix (voice/), icônes, app.json
+  apps/calculs/     Plus et moins (grande section), même organisation
 scripts/            build.py, check.py, icons.py
 tests/              e2e.py, audit.py (Playwright)
 docs/               architecture, ajouter une appli, pédagogie et voix des tables
@@ -52,6 +54,8 @@ docs/               architecture, ajouter une appli, pédagogie et voix des tabl
 - [Ajouter une appli](docs/AJOUTER-UNE-APPLI.md)
 - [Les tables : la pédagogie](docs/tables/PEDAGOGIE.md)
 - [Les tables : la voix](docs/tables/VOIX.md)
+- [Plus et moins : la pédagogie](docs/calculs/PEDAGOGIE.md)
+- [Plus et moins : la voix](docs/calculs/VOIX.md)
 - [Historique des versions](CHANGELOG.md)
 
 ## Crédits

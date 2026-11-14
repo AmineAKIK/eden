@@ -3,7 +3,7 @@
 Exemple pour une appli `lecture`.
 
 1. **Créer le dossier** `src/apps/lecture/` avec :
-   - `app.json` (copier celui des tables et l'adapter) : `id`, `name` (court, sous l'icône), `title`, `description`, `version`, `storageKey` (`eden:lecture`), `themeColor`, la liste `js` et `css`, et `voice` si l'appli parle.
+   - `app.json` (copier celui de Plus et moins et l'adapter ; `ownManifest` si l'appli doit s'installer seule, avec sa propre icône) : `id`, `name` (court, sous l'icône), `title`, `description`, `version`, `storageKey` (`eden:lecture`), `themeColor`, la liste `js` et `css`, et `voice` si l'appli parle.
    - `js/` : le code. Il doit créer l'interface dans `#app` (ou dans `document.body`) et retirer l'élément `#nojs` au démarrage. Les constantes `APP_VERSION` et `HERO_SVG` (Hector) sont fournies par la construction.
    - `style.css`.
    - `icons/lecture.svg` et `icons/lecture-mask.svg` (même dessin réduit à 80 %, sur fond plein).

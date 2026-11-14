@@ -30,7 +30,9 @@ dist/
 - Mise en page : la hauteur réellement disponible est mesurée par le code (classes `short` sous 700 px et `tiny` sous 600 px sur `<html>`), sans compter sur les unités d'écran ni sur `:has()`, qui varient selon les versions d'iOS. La zone de jeu se réajuste d'elle-même quand sa taille ou son contenu change (`autoFit`).
 - Il ne faut **jamais** effacer les données du site pour mettre à jour : cela effacerait la progression. Le test `tests/e2e.py` vérifie qu'une publication s'applique seule et que la progression reste.
 
-**La progression.** Chaque appli garde son état dans `localStorage`, sous sa propre clé déclarée dans `app.json` (`eden:tables`). Le catalogue la lit pour afficher la progression. Au démarrage, on demande au navigateur de ne pas effacer ces données (`navigator.storage.persist`).
+**Une appli peut avoir son propre manifeste** (`"ownManifest": true` dans `app.json`, c'est le cas de Plus et moins) : installée depuis sa page, son icône ouvre directement l'appli, avec son nom et son icône, sans passer par le catalogue. Utile quand l'appli est pour un autre enfant que le catalogue.
+
+**La progression.** Chaque appli garde son état dans `localStorage`, sous sa propre clé déclarée dans `app.json` (`eden:tables`, `eden:calculs`). Le catalogue la lit pour afficher la progression. Au démarrage, on demande au navigateur de ne pas effacer ces données (`navigator.storage.persist`).
 
 Règles à respecter :
 - Ne jamais renommer une clé sans migration. Les tables lisent encore l'ancienne clé `pico-tables-v2` si la nouvelle est vide.

@@ -94,6 +94,20 @@ def build_app(meta, catalogue) -> Path:
 
     css = fonts_css() + "\n" + "\n".join(read(d / f) for f in meta["css"])
     up = "../../"
+    # une appli peut avoir son propre manifeste : son icône sur l'écran d'accueil ouvre directement l'appli
+    if meta.get("ownManifest"):
+        i = meta["id"]
+        man = {"id": "./", "name": meta["title"], "short_name": meta["name"], "description": meta["description"],
+               "lang": "fr", "dir": "ltr", "start_url": "./", "scope": "./", "display": "standalone",
+               "orientation": "portrait", "background_color": meta["themeColor"], "theme_color": meta["themeColor"],
+               "icons": [{"src": f"icons/{i}-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any"},
+                         {"src": f"icons/{i}-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any"},
+                         {"src": f"icons/{i}-mask-192.png", "sizes": "192x192", "type": "image/png", "purpose": "maskable"},
+                         {"src": f"icons/{i}-mask-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable"}]}
+        (out / "manifest.webmanifest").write_text(json.dumps(man, ensure_ascii=False, indent=2), encoding="utf-8")
+        manifest_href, touch_icon, short = "manifest.webmanifest", f"icons/{i}-180.png", meta["name"]
+    else:
+        manifest_href, touch_icon, short = f"{up}manifest.webmanifest", f"{up}icons/eden-180.png", catalogue["shortName"]
     html = f"""<!doctype html>
 <html lang="fr">
 <head>
@@ -102,12 +116,12 @@ def build_app(meta, catalogue) -> Path:
 <title>{meta['title']}</title>
 <meta name="description" content="{meta['description']}">
 <meta name="theme-color" content="{meta['themeColor']}">
-<link rel="manifest" href="{up}manifest.webmanifest">
+<link rel="manifest" href="{manifest_href}">
 <link rel="icon" href="icons/{meta['id']}-64.png">
-<link rel="apple-touch-icon" href="{up}icons/eden-180.png">
+<link rel="apple-touch-icon" href="{touch_icon}">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-title" content="{catalogue['shortName']}">
+<meta name="apple-mobile-web-app-title" content="{short}">
 <style>{css}</style>
 </head>
 <body>
