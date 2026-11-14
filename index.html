@@ -99,7 +99,7 @@ h1 b{color:var(--gold);font-weight:400}
 </script>
 <script>
 /* applications du catalogue : générées depuis le fichier app.json de chaque appli */
-const APPS=[{"id": "tables", "name": "Les tables", "path": "apps/tables/", "icon": "apps/tables/icons/tables-192.png", "storageKey": "eden:tables"}];
+const APPS=[{"id": "tables", "name": "Les tables", "path": "apps/tables/", "icon": "apps/tables/icons/tables-192.png", "storageKey": "eden:tables"}, {"id": "calculs", "name": "Plus et moins", "path": "apps/calculs/", "icon": "apps/calculs/icons/calculs-192.png", "storageKey": "eden:calculs"}];
 /* progression affichée sous chaque appli : src/catalogue/progress.js */
 const PROGRESS={
   /* Les tables : nombre de calculs « sus » (boîte 3 ou plus) sur 36 */
@@ -107,6 +107,12 @@ const PROGRESS={
     if(!s||!s.f)return 'Avec Hector';
     const n=Object.values(s.f).filter(e=>e.box>=3).length;
     return n?`${n} calcul${n>1?'s':''} su${n>1?'s':''} sur 36`:'Avec Hector';
+  },
+  /* Plus et moins : calculs sus (hors « combien ? ») */
+  calculs(s){
+    if(!s||!s.f)return 'Avec Hector';
+    const n=Object.entries(s.f).filter(([k,e])=>k[0]!=='c'&&e.box>=3).length;
+    return n?`${n} calcul${n>1?'s':''} su${n>1?'s':''}`:'Avec Hector';
   }
 };
 

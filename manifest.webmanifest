@@ -49,6 +49,18 @@
           "type": "image/png"
         }
       ]
+    },
+    {
+      "name": "Plus et moins de Milo",
+      "short_name": "Plus et moins",
+      "url": "apps/calculs/",
+      "icons": [
+        {
+          "src": "apps/calculs/icons/calculs-192.png",
+          "sizes": "192x192",
+          "type": "image/png"
+        }
+      ]
     }
   ]
 }

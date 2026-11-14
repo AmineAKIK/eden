@@ -1,12 +1,12 @@
 /* Service worker : copie locale de tout le site, pour jouer hors ligne.
-   06eb8b85de9b et ["./", "apps/tables/icons/tables-180.png", "apps/tables/icons/tables-192.png", "apps/tables/icons/tables-512.png", "apps/tables/icons/tables-64.png", "apps/tables/icons/tables-mask-192.png", "apps/tables/icons/tables-mask-512.png", "apps/tables/", "icons/eden-180.png", "icons/eden-192.png", "icons/eden-512.png", "icons/eden-64.png", "icons/eden-mask-192.png", "icons/eden-mask-512.png", "index.html", "manifest.webmanifest", "mentions-legales.html"] sont remplis par scripts/build.py.
+   e73c7e16cc4d et ["./", "apps/calculs/icons/calculs-180.png", "apps/calculs/icons/calculs-192.png", "apps/calculs/icons/calculs-512.png", "apps/calculs/icons/calculs-64.png", "apps/calculs/icons/calculs-mask-192.png", "apps/calculs/icons/calculs-mask-512.png", "apps/calculs/", "apps/calculs/manifest.webmanifest", "apps/tables/icons/tables-180.png", "apps/tables/icons/tables-192.png", "apps/tables/icons/tables-512.png", "apps/tables/icons/tables-64.png", "apps/tables/icons/tables-mask-192.png", "apps/tables/icons/tables-mask-512.png", "apps/tables/", "icons/eden-180.png", "icons/eden-192.png", "icons/eden-512.png", "icons/eden-64.png", "icons/eden-mask-192.png", "icons/eden-mask-512.png", "index.html", "manifest.webmanifest", "mentions-legales.html"] sont remplis par scripts/build.py.
 
-   Mises à jour : la version (06eb8b85de9b) est l'empreinte du site construit. Dès qu'une
+   Mises à jour : la version (e73c7e16cc4d) est l'empreinte du site construit. Dès qu'une
    publication change un fichier, ce script change, le navigateur installe la nouvelle
    version, puis la page se recharge (voir src/shared/update.js).
    La progression (localStorage) n'est jamais touchée : seul le cache des fichiers change. */
-const CACHE='eden-06eb8b85de9b';
-const FILES=["./", "apps/tables/icons/tables-180.png", "apps/tables/icons/tables-192.png", "apps/tables/icons/tables-512.png", "apps/tables/icons/tables-64.png", "apps/tables/icons/tables-mask-192.png", "apps/tables/icons/tables-mask-512.png", "apps/tables/", "icons/eden-180.png", "icons/eden-192.png", "icons/eden-512.png", "icons/eden-64.png", "icons/eden-mask-192.png", "icons/eden-mask-512.png", "index.html", "manifest.webmanifest", "mentions-legales.html"];
+const CACHE='eden-e73c7e16cc4d';
+const FILES=["./", "apps/calculs/icons/calculs-180.png", "apps/calculs/icons/calculs-192.png", "apps/calculs/icons/calculs-512.png", "apps/calculs/icons/calculs-64.png", "apps/calculs/icons/calculs-mask-192.png", "apps/calculs/icons/calculs-mask-512.png", "apps/calculs/", "apps/calculs/manifest.webmanifest", "apps/tables/icons/tables-180.png", "apps/tables/icons/tables-192.png", "apps/tables/icons/tables-512.png", "apps/tables/icons/tables-64.png", "apps/tables/icons/tables-mask-192.png", "apps/tables/icons/tables-mask-512.png", "apps/tables/", "icons/eden-180.png", "icons/eden-192.png", "icons/eden-512.png", "icons/eden-64.png", "icons/eden-mask-192.png", "icons/eden-mask-512.png", "index.html", "manifest.webmanifest", "mentions-legales.html"];
 
 /* installation : on télécharge tout en contournant le cache HTTP du navigateur,
    sinon on risquerait de remettre en cache d'anciens fichiers */
