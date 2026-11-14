@@ -6,6 +6,7 @@ Format : [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/). Chaque appli 
 
 ### Ajouté
 - Nouvelle appli **Plus et moins** (1.0.0), pour Milo, en grande section : ajouter et enlever jusqu'à 10 avec le coffre d'Hector, d'après le programme de maternelle (surcompter, décompter, doubles, parties-tout). Tout est dit à voix haute, réponses sur une bande de 0 à 10, techniques montrées le jour où on en a besoin, diagnostic des erreurs, répétition espacée, test de départ, trésor (dix pièces font un sac), espace parents. Elle a son propre manifeste : installée, son icône ouvre directement l'appli.
+- Voix de Plus et moins : 147 phrases découpées dans l'enregistrement, chacune vérifiée par reconnaissance vocale, au même volume que la voix des tables.
 - `scripts/voice_script.py` : le texte à enregistrer d'une appli, dans l'ordre de ses phrases.
 - Tests : `tests/audit.py` joue aussi Plus et moins sur cinq tailles d'écran (`--app=calculs` pour elle seule) ; `tests/e2e.py` vérifie sa sauvegarde.
 
